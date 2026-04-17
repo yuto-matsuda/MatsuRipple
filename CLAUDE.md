@@ -1,17 +1,7 @@
 # CLAUDE.md
 
 # プロジェクト概要
-- 写真アップロード機能（地図上に表示）
-    - 写真の公開 / 非公開設定
-    - 公開の場合はオープンデータとして公開→貢献度に応じてポイント付与
-    - グループ内共有機能（余裕があれば）
-    - フォルダ自動作成（余裕があれば）
-- 地図から簡単にイベント検索可能なUI
-- 簡単にイベントを追加できるフォーマット作成機能
-- スタンプラリー機能
-    - ポイント付与
-- 再度訪れてもらうための魅力解放機能
-
+お祭りの情報をCMSで投稿し，地図UIから参加者を募るWebアプリ。
 
 ## ディレクトリ構成
 | ディレクトリ | 役割 |
@@ -24,13 +14,15 @@
 | src/utils/ | 汎用ユーティリティ |
 
 ## 技術スタック
+
+### フロントエンド
 - React 19.2.4
 - TypeScript 5 (strictモード)
 - Tailwind CSS
 - Vite
 - Vitest
 
-## バックエンド
+### バックエンド
 - FastAPI（Python）
 - REST API
 - JWT認証
@@ -63,7 +55,7 @@ export function FestivalCard({ id, name, region, onClick }: FestivalCardProps) {
       <p>{region}</p>
     </div>
   );
-}
+};
 
 ```
 
@@ -116,9 +108,18 @@ export default useFestivals;
 - propsの型定義省略
 
 ## よく使うコマンド
+
+### フロントエンド
 | コマンド | 説明 |
 |---------|------|
 | `pnpm run dev` | 開発サーバー起動 |
 | `pnpm test` | テスト実行 |
 | `pnpm run lint` | ESLint実行 |
 | `pnpm run build` | 本番ビルド |
+
+### バックエンド
+| コマンド | 説明 |
+|---------|------|
+| `activate` | 仮想環境の起動 |
+| `deactivate` | 仮想環境の終了 |
+| `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` | 開発サーバー起動 |
