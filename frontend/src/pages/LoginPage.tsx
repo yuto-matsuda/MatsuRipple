@@ -2,6 +2,19 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  border: '1.5px solid #c8d8be',
+  borderRadius: '8px',
+  padding: '10px 12px',
+  fontSize: '14px',
+  fontFamily: 'var(--font-body)',
+  color: '#1c2e17',
+  background: 'white',
+  outline: 'none',
+  boxSizing: 'border-box',
+};
+
 export function LoginPage() {
   const { login, error } = useAuth();
   const navigate = useNavigate();
@@ -9,7 +22,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setLoading(true);
     const ok = await login(username, password);
@@ -18,40 +31,48 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">ログイン</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ユーザー名</label>
-            <input
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
+    <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7f0' }}>
+      <div style={{
+        background: 'white', border: '1px solid #c8d8be', borderRadius: '16px',
+        boxShadow: '0 4px 24px rgba(28,46,23,0.10)', padding: '40px 36px', width: '100%', maxWidth: '360px',
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 700, color: '#1c2e17', letterSpacing: '0.06em' }}>
+            ログイン
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
+          <div style={{ fontSize: '13px', color: '#7a9470', marginTop: '6px', fontFamily: 'var(--font-body)' }}>
+            MatsuRipple 管理者
           </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>
+              ユーザー名
+            </label>
+            <input style={inputStyle} type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="admin" />
+          </div>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>
+              パスワード
+            </label>
+            <input style={inputStyle} type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+          </div>
+          {error && <div style={{ fontSize: '12px', color: '#c85a2c', marginBottom: '12px' }}>{error}</div>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-700 text-white py-2 px-4 rounded-md hover:bg-red-800 disabled:opacity-50 transition-colors font-medium"
+            style={{
+              width: '100%', background: loading ? '#9ab88e' : '#4e8b3f',
+              color: 'white', border: 'none', borderRadius: '8px',
+              padding: '11px', fontSize: '14px', fontWeight: 600,
+              fontFamily: 'var(--font-body)', cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'background 0.2s',
+            }}
           >
             {loading ? 'ログイン中...' : 'ログイン'}
           </button>
         </form>
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p style={{ textAlign: 'center', fontSize: '12px', color: '#7a9470', marginTop: '20px', fontFamily: 'var(--font-body)' }}>
           アカウントは管理者にお問い合わせください
         </p>
       </div>

@@ -1,8 +1,18 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export function Navbar() {
+  const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = !!localStorage.getItem('token');
+
+  const links = [
+    { to: '/', label: '地図' },
+    { to: '/photos', label: '写真' },
+    ...(isAuthenticated ? [{ to: '/cms', label: '祭り投稿' }] : []),
+  ];
+
+  const isActive = (to: string) =>
+    to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -10,22 +20,71 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-red-700 text-white px-6 py-3 flex items-center justify-between shadow-md">
-      <Link to="/" className="text-xl font-bold tracking-wide">
+    <nav style={{
+      background: '#2d5422',
+      color: 'white',
+      padding: '0 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      height: '52px',
+      boxShadow: '0 2px 8px rgba(28,46,23,0.18)',
+      position: 'sticky',
+      top: 0,
+      zIndex: 100,
+    }}>
+      <Link to="/" style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: '17px',
+        fontWeight: 700,
+        color: 'white',
+        textDecoration: 'none',
+        letterSpacing: '0.06em',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+      }}>
+        <span style={{ width: 8, height: 8, background: '#c85a2c', borderRadius: '50%', display: 'inline-block', flexShrink: 0 }} />
         MatsuRipple
       </Link>
-      <div className="flex gap-5 items-center text-sm">
-        <Link to="/" className="hover:text-red-200 transition-colors">地図</Link>
-        <Link to="/photos" className="hover:text-red-200 transition-colors">写真</Link>
+
+      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+        {links.map(({ to, label }) => (
+          <Link key={to} to={to} style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: isActive(to) ? 'white' : 'rgba(255,255,255,0.72)',
+            textDecoration: 'none',
+            borderBottom: isActive(to) ? '2px solid #c85a2c' : '2px solid transparent',
+            paddingBottom: '2px',
+            transition: 'color 0.2s',
+          }}>
+            {label}
+          </Link>
+        ))}
         {isAuthenticated ? (
-          <>
-            <Link to="/cms" className="hover:text-red-200 transition-colors">祭り投稿</Link>
-            <button onClick={handleLogout} className="hover:text-red-200 transition-colors">
-              ログアウト
-            </button>
-          </>
+          <button onClick={handleLogout} style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '12px',
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.72)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+          }}>ログアウト</button>
         ) : (
-          <Link to="/login" className="hover:text-red-200 transition-colors">ログイン</Link>
+          <Link to="/login" style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '12px',
+            fontWeight: 500,
+            padding: '6px 14px',
+            borderRadius: '8px',
+            background: '#c85a2c',
+            color: 'white',
+            textDecoration: 'none',
+          }}>ログイン</Link>
         )}
       </div>
     </nav>

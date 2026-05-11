@@ -19,7 +19,9 @@ class Festival(Base):
     region = Column(String)
     location_lat = Column(Float)
     location_lng = Column(Float)
-    date = Column(String)
+    start_datetime = Column(String)
+    end_datetime = Column(String)
+    venue = Column(String)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
