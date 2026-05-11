@@ -28,7 +28,9 @@ class FestivalCreate(BaseModel):
     region: Optional[str] = None
     location_lat: Optional[float] = None
     location_lng: Optional[float] = None
-    date: Optional[str] = None
+    start_datetime: Optional[str] = None
+    end_datetime: Optional[str] = None
+    venue: Optional[str] = None
 
 
 class FestivalResponse(BaseModel):
@@ -38,7 +40,9 @@ class FestivalResponse(BaseModel):
     region: Optional[str] = None
     location_lat: Optional[float] = None
     location_lng: Optional[float] = None
-    date: Optional[str] = None
+    start_datetime: Optional[str] = None
+    end_datetime: Optional[str] = None
+    venue: Optional[str] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

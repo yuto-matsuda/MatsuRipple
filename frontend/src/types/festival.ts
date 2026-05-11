@@ -5,7 +5,9 @@ export interface Festival {
     region: string | null;
     location_lat: number | null;
     location_lng: number | null;
-    date: string | null;
+    start_datetime: string | null;
+    end_datetime: string | null;
+    venue: string | null;
     created_at: string;
 }
 
@@ -15,5 +17,7 @@ export interface FestivalCreate {
     region?: string;
     location_lat?: number;
     location_lng?: number;
-    date?: string;
+    start_datetime?: string;
+    end_datetime?: string;
+    venue?: string;
 }

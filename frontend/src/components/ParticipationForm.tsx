@@ -9,6 +9,27 @@ interface ParticipationFormProps {
   error: string | null;
 }
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  border: '1.5px solid #c8d8be',
+  borderRadius: '8px',
+  padding: '9px 12px',
+  fontSize: '14px',
+  fontFamily: 'var(--font-body)',
+  color: '#1c2e17',
+  background: 'white',
+  outline: 'none',
+  boxSizing: 'border-box',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: '12px',
+  fontWeight: 500,
+  color: '#4a6840',
+  marginBottom: '5px',
+};
+
 export function ParticipationForm({
   festivalId,
   onSubmit,
@@ -20,62 +41,50 @@ export function ParticipationForm({
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     await onSubmit({ festival_id: festivalId, name, email, message: message || undefined });
-    if (success) {
-      setName('');
-      setEmail('');
-      setMessage('');
-    }
   };
 
   if (success) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-700 text-sm">
-        参加登録が完了しました！
+      <div style={{ background: '#edf3e7', border: '1px solid #9ab88e', borderRadius: '8px', padding: '16px', textAlign: 'center', color: '#2d5422', fontSize: '14px', fontFamily: 'var(--font-body)' }}>
+        ✓ 参加登録が完了しました！当日お会いしましょう。
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">お名前 *</label>
-        <input
-          type="text"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
+    <form onSubmit={handleSubmit}>
+      <div style={{ marginBottom: '14px' }}>
+        <label style={labelStyle}>お名前 *</label>
+        <input style={inputStyle} type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="山田 太郎" />
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス *</label>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
+      <div style={{ marginBottom: '14px' }}>
+        <label style={labelStyle}>メールアドレス *</label>
+        <input style={inputStyle} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@email.com" />
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">メッセージ</label>
+      <div style={{ marginBottom: '16px' }}>
+        <label style={labelStyle}>メッセージ</label>
         <textarea
+          style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          rows={3}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
         />
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <div style={{ fontSize: '12px', color: '#c85a2c', marginBottom: '12px' }}>{error}</div>}
       <button
         type="submit"
         disabled={submitting}
-        className="w-full bg-red-700 text-white py-2 px-4 rounded-md hover:bg-red-800 disabled:opacity-50 transition-colors font-medium"
+        style={{
+          background: submitting ? '#9ab88e' : '#c85a2c',
+          color: 'white', border: 'none', borderRadius: '8px',
+          padding: '10px 24px', fontSize: '14px', fontWeight: 600,
+          fontFamily: 'var(--font-body)', cursor: submitting ? 'not-allowed' : 'pointer',
+          transition: 'background 0.2s',
+        }}
       >
-        {submitting ? '送信中...' : '参加登録する'}
+        {submitting ? '送信中...' : '参加する'}
       </button>
     </form>
   );

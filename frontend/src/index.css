@@ -1,1 +1,72 @@
 @import "tailwindcss";
+
+:root {
+  --color-base-bg:        #f4f7f0;
+  --color-surface:        #ffffff;
+  --color-surface-muted:  #edf3e7;
+  --color-surface-deep:   #e0edd7;
+
+  --color-green-50:       #f0f6eb;
+  --color-green-100:      #ddecd3;
+  --color-green-200:      #bcdba8;
+  --color-green-300:      #93c478;
+  --color-green-400:      #6aab4d;
+  --color-green-500:      #4e8b3f;
+  --color-green-600:      #3d7030;
+  --color-green-700:      #2d5422;
+  --color-green-800:      #1e3a17;
+
+  --color-vermilion-400:  #d0622e;
+  --color-vermilion-500:  #c85a2c;
+  --color-vermilion-600:  #a84420;
+
+  --fg-primary:           #1c2e17;
+  --fg-secondary:         #4a6840;
+  --fg-muted:             #7a9470;
+  --fg-accent:            #c85a2c;
+
+  --bg-page:              #f4f7f0;
+  --bg-surface:           #ffffff;
+  --bg-muted:             #edf3e7;
+  --bg-hover:             #f0f6eb;
+
+  --border-default:       #c8d8be;
+  --border-strong:        #9ab88e;
+  --border-focus:         #4e8b3f;
+
+  --shadow-xs:  0 1px 3px rgba(28,46,23,0.08);
+  --shadow-sm:  0 1px 6px rgba(28,46,23,0.10);
+  --shadow-md:  0 4px 16px rgba(28,46,23,0.12);
+  --shadow-lg:  0 8px 32px rgba(28,46,23,0.14);
+
+  --font-display: 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+  --font-body:    'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  background: var(--bg-page);
+  color: var(--fg-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Drum roll picker */
+.drum-column {
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.drum-column::-webkit-scrollbar { display: none; }
+.drum-column-item {
+  scroll-snap-align: center;
+}

@@ -13,19 +13,23 @@ export function PhotoPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">写真ギャラリー</h1>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 20px', background: '#f4f7f0', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '26px', fontWeight: 700, color: '#1c2e17', letterSpacing: '0.04em', margin: 0 }}>
+          写真ギャラリー
+        </h1>
         {isAuthenticated && (
-          <label className="cursor-pointer bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 transition-colors text-sm font-medium">
+          <label style={{ fontSize: '13px', fontWeight: 500, padding: '8px 18px', borderRadius: '8px', background: '#4e8b3f', color: 'white', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
             {uploading ? 'アップロード中...' : '写真をアップロード'}
-            <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
           </label>
         )}
       </div>
-      {loading && <p className="text-gray-500">読み込み中...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-      <PhotoGallery photos={photos} />
+      {loading && <div style={{ fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>読み込み中...</div>}
+      {error && <div style={{ fontSize: '13px', color: '#c85a2c', fontFamily: 'var(--font-body)' }}>{error}</div>}
+      <div style={{ background: 'white', borderRadius: '12px', padding: '24px', border: '1px solid #c8d8be', boxShadow: '0 1px 6px rgba(28,46,23,0.08)' }}>
+        <PhotoGallery photos={photos} />
+      </div>
     </div>
   );
 }

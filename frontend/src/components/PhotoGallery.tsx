@@ -6,11 +6,15 @@ interface PhotoGalleryProps {
 
 export function PhotoGallery({ photos }: PhotoGalleryProps) {
   if (photos.length === 0) {
-    return <p className="text-gray-500 text-center py-8">写真はまだありません</p>;
+    return (
+      <div style={{ textAlign: 'center', padding: '32px 0', fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>
+        写真はまだありません
+      </div>
+    );
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
       {photos.map((photo) => (
         <a
           key={photo.id}
@@ -21,7 +25,7 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
           <img
             src={`/uploads/${photo.filename}`}
             alt={photo.original_name ?? '写真'}
-            className="w-full h-40 object-cover rounded-lg hover:opacity-90 transition-opacity"
+            style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: '8px', border: '1px solid #c8d8be', display: 'block' }}
           />
         </a>
       ))}
