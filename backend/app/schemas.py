@@ -1,12 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
 
 
 class UserCreate(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
+
+    @field_validator('password')
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError('パスワードは8文字以上で入力してください')
+        return v
 
 
 class UserResponse(BaseModel):
@@ -15,6 +22,11 @@ class UserResponse(BaseModel):
     email: str
 
     model_config = {"from_attributes": True}
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class Token(BaseModel):

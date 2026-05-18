@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from .database import get_db
-from . import models
+from . import models, state
 
 SECRET_KEY = "matsuripple-dev-secret-change-in-production"
 ALGORITHM = "HS256"
@@ -46,7 +46,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except JWTError:
         raise credentials_exception
     user = db.query(models.User).filter(models.User.username == username).first()
-    if user is None:
+    if user is None or user.id in state.withdrawn_user_ids:
         raise credentials_exception
     return user
 

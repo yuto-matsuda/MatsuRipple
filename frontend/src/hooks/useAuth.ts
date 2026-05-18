@@ -5,15 +5,15 @@ const useAuth = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
     const [error, setError] = useState<string | null>(null);
 
-    const login = async (username: string, password: string): Promise<boolean> => {
+    const login = async (email: string, password: string): Promise<boolean> => {
         setError(null);
         try {
-            const token = await loginApi(username, password);
+            const token = await loginApi(email, password);
             localStorage.setItem('token', token);
             setIsAuthenticated(true);
             return true;
         } catch {
-            setError('ユーザー名またはパスワードが正しくありません');
+            setError('メールアドレスまたはパスワードが正しくありません');
             return false;
         }
     };

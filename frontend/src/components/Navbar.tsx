@@ -64,16 +64,25 @@ export function Navbar() {
           </Link>
         ))}
         {isAuthenticated ? (
-          <button onClick={handleLogout} style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '12px',
-            fontWeight: 500,
-            color: 'rgba(255,255,255,0.72)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-          }}>ログアウト</button>
+          <>
+            <Link to="/account" style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              fontWeight: 500,
+              color: 'rgba(255,255,255,0.72)',
+              textDecoration: 'none',
+            }}>アカウント</Link>
+            <button onClick={handleLogout} style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '12px',
+              fontWeight: 500,
+              color: 'rgba(255,255,255,0.72)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}>ログアウト</button>
+          </>
         ) : (
           <Link to="/login" style={{
             fontFamily: 'var(--font-body)',
