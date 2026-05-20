@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+import useRegister from '../hooks/useRegister';
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -15,19 +15,23 @@ const inputStyle: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-export function LoginPage() {
-  const { login, error } = useAuth();
+const errorStyle: React.CSSProperties = {
+  fontSize: '11px',
+  color: '#c85a2c',
+  marginTop: '4px',
+};
+
+export function RegisterPage() {
+  const { register, loading, serverError, validationErrors } = useRegister();
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    setLoading(true);
-    const ok = await login(email, password);
-    setLoading(false);
-    if (ok) navigate('/cms');
+    const ok = await register({ username, email, password });
+    if (ok) navigate('/login');
   };
 
   return (
@@ -38,26 +42,58 @@ export function LoginPage() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 700, color: '#1c2e17', letterSpacing: '0.06em' }}>
-            ログイン
+            アカウント作成
           </div>
           <div style={{ fontSize: '13px', color: '#7a9470', marginTop: '6px', fontFamily: 'var(--font-body)' }}>
-            MatsuRipple 管理者
+            MatsuRipple に登録
           </div>
         </div>
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>
-              メールアドレス
+              ユーザー名
             </label>
-            <input style={inputStyle} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@email.com" />
+            <input
+              style={inputStyle}
+              type="text"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="yamada_taro"
+            />
+            {validationErrors.username && <p style={errorStyle}>{validationErrors.username}</p>}
           </div>
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>
-              パスワード
+              メールアドレス
             </label>
-            <input style={inputStyle} type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            <input
+              style={inputStyle}
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@email.com"
+            />
+            {validationErrors.email && <p style={errorStyle}>{validationErrors.email}</p>}
           </div>
-          {error && <div style={{ fontSize: '12px', color: '#c85a2c', marginBottom: '12px' }}>{error}</div>}
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>
+              パスワード（8文字以上）
+            </label>
+            <input
+              style={inputStyle}
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+            {validationErrors.password && <p style={errorStyle}>{validationErrors.password}</p>}
+          </div>
+          {serverError && (
+            <div style={{ fontSize: '12px', color: '#c85a2c', marginBottom: '12px' }}>{serverError}</div>
+          )}
           <button
             type="submit"
             disabled={loading}
@@ -69,13 +105,13 @@ export function LoginPage() {
               transition: 'background 0.2s',
             }}
           >
-            {loading ? 'ログイン中...' : 'ログイン'}
+            {loading ? '登録中...' : '登録する'}
           </button>
         </form>
         <p style={{ textAlign: 'center', fontSize: '12px', color: '#7a9470', marginTop: '20px', fontFamily: 'var(--font-body)' }}>
-          アカウントをお持ちでない方は{' '}
-          <Link to="/register" style={{ color: '#4e8b3f', textDecoration: 'none', fontWeight: 600 }}>
-            新規登録
+          すでにアカウントをお持ちの方は{' '}
+          <Link to="/login" style={{ color: '#4e8b3f', textDecoration: 'none', fontWeight: 600 }}>
+            ログイン
           </Link>
         </p>
       </div>

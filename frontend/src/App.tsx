@@ -5,6 +5,8 @@ import { CMSPage } from './pages/CMSPage';
 import { FestivalDetailPage } from './pages/FestivalDetailPage';
 import { PhotoPage } from './pages/PhotoPage';
 import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { AccountPage } from './pages/AccountPage';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
             <Route path="/cms" element={<CMSPage />} />
             <Route path="/photos" element={<PhotoPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/account" element={<AccountPage />} />
           </Routes>
         </main>
       </div>
