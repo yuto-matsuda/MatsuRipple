@@ -24,3 +24,8 @@ export const updateFestival = async (id: number, festival: FestivalCreate): Prom
 export const deleteFestival = async (id: number): Promise<void> => {
     await apiClient.delete(`/festivals/${id}`);
 };
+
+export const fetchMyFestivals = async (): Promise<Festival[]> => {
+    const response = await apiClient.get<Festival[]>('/festivals/me');
+    return response.data;
+};

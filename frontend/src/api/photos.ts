@@ -7,6 +7,11 @@ export const fetchPhotos = async (festivalId?: number): Promise<Photo[]> => {
     return response.data;
 };
 
+export const fetchMyPhotos = async (): Promise<Photo[]> => {
+    const response = await apiClient.get<Photo[]>('/photos/me');
+    return response.data;
+};
+
 export const uploadPhoto = async (file: File, festivalId?: number, isPublic = true): Promise<Photo> => {
     const formData = new FormData();
     formData.append('file', file);

@@ -18,12 +18,12 @@ export function PhotoGallery({ photos }: PhotoGalleryProps) {
       {photos.map((photo) => (
         <a
           key={photo.id}
-          href={`/uploads/${photo.filename}`}
+          href={photo.filename}
           target="_blank"
           rel="noopener noreferrer"
         >
           <img
-            src={`/uploads/${photo.filename}`}
+            src={photo.filename}
             alt={photo.original_name ?? '写真'}
             style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: '8px', border: '1px solid #c8d8be', display: 'block' }}
           />

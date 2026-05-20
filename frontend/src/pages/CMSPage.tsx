@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
-import { createFestival } from '../api/festivals';
+import { createFestival, updateFestival } from '../api/festivals';
+import { uploadFestivalGalleryPhoto } from '../api/festivalGallery';
 import { lookupPostalCode, geocodeAddress } from '../api/geocoding';
 import { DateTimePicker } from '../components/DateTimePicker';
 import type { FestivalCreate } from '../types/festival';
+
+const MAX_PHOTOS = 10;
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -65,7 +68,34 @@ export function CMSPage() {
   const [postalCode, setPostalCode] = useState('');
   const [postalLoading, setPostalLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
+
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [thumbnailIndex, setThumbnailIndex] = useState(0);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    const remaining = MAX_PHOTOS - photoFiles.length;
+    if (remaining <= 0) return;
+    const toAdd = files.slice(0, remaining);
+    const previews = toAdd.map((f) => URL.createObjectURL(f));
+    setPhotoFiles((prev) => [...prev, ...toAdd]);
+    setPhotoPreviews((prev) => [...prev, ...previews]);
+    e.target.value = '';
+  };
+
+  const handlePhotoRemove = (idx: number) => {
+    URL.revokeObjectURL(photoPreviews[idx]);
+    setPhotoFiles((prev) => prev.filter((_, i) => i !== idx));
+    setPhotoPreviews((prev) => prev.filter((_, i) => i !== idx));
+    setThumbnailIndex((prev) => {
+      if (idx < prev) return prev - 1;
+      if (idx === prev) return 0;
+      return prev;
+    });
+  };
 
   const validate = (): string[] => {
     const errs: string[] = [];
@@ -114,12 +144,29 @@ export function CMSPage() {
     setErrors([]);
     setSubmitting(true);
     try {
+      setSubmitStatus('祭り情報を投稿中...');
       const festival = await createFestival(form);
+
+      if (photoFiles.length > 0) {
+        setSubmitStatus(`写真をアップロード中... (0/${photoFiles.length})`);
+        const uploaded = [];
+        for (let i = 0; i < photoFiles.length; i++) {
+          const photo = await uploadFestivalGalleryPhoto(photoFiles[i], festival.id, i);
+          uploaded.push(photo);
+          setSubmitStatus(`写真をアップロード中... (${i + 1}/${photoFiles.length})`);
+        }
+        const thumbnailUrl = uploaded[thumbnailIndex]?.filename ?? uploaded[0]?.filename;
+        if (thumbnailUrl) {
+          await updateFestival(festival.id, { ...form, thumbnail_url: thumbnailUrl });
+        }
+      }
+
       navigate(`/festivals/${festival.id}`);
     } catch {
       setErrors(['投稿に失敗しました。ログインしているか確認してください。']);
     } finally {
       setSubmitting(false);
+      setSubmitStatus('');
     }
   };
 
@@ -243,6 +290,57 @@ export function CMSPage() {
           />
         </div>
 
+        {/* トピック写真 */}
+        <div style={sectionStyle}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600, color: '#1c2e17', marginBottom: '14px' }}>
+            トピック写真
+            <span style={{ fontSize: '11px', fontWeight: 400, color: '#7a9470', marginLeft: '8px' }}>最大{MAX_PHOTOS}枚・最初に選択した写真がサムネイルになります</span>
+          </div>
+
+          {/* プレビューグリッド */}
+          {photoPreviews.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+              {photoPreviews.map((src, i) => (
+                <div key={i} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: `2px solid ${i === thumbnailIndex ? '#c85a2c' : '#c8d8be'}`, aspectRatio: '1' }}>
+                  <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  {/* サムネイルバッジ */}
+                  {i === thumbnailIndex && (
+                    <div style={{ position: 'absolute', top: '4px', left: '4px', background: '#c85a2c', color: 'white', fontSize: '9px', fontWeight: 700, padding: '2px 5px', borderRadius: '4px', fontFamily: 'var(--font-body)' }}>
+                      サムネイル
+                    </div>
+                  )}
+                  {/* サムネイル選択ボタン */}
+                  {i !== thumbnailIndex && (
+                    <button
+                      type="button"
+                      onClick={() => setThumbnailIndex(i)}
+                      style={{ position: 'absolute', top: '4px', left: '4px', background: 'rgba(0,0,0,0.45)', color: 'white', fontSize: '9px', fontWeight: 600, padding: '2px 5px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
+                    >
+                      サムネイルに設定
+                    </button>
+                  )}
+                  {/* 削除ボタン */}
+                  <button
+                    type="button"
+                    onClick={() => handlePhotoRemove(i)}
+                    style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.45)', color: 'white', fontSize: '13px', width: '22px', height: '22px', borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 追加ボタン */}
+          {photoFiles.length < MAX_PHOTOS && (
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500, padding: '8px 16px', borderRadius: '8px', border: '1.5px dashed #9ab88e', color: '#4a6840', cursor: 'pointer', fontFamily: 'var(--font-body)', background: '#f8fbf5' }}>
+              ＋ 写真を追加（{photoFiles.length}/{MAX_PHOTOS}）
+              <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoSelect} />
+            </label>
+          )}
+        </div>
+
         <button
           type="submit"
           disabled={submitting}
@@ -255,7 +353,7 @@ export function CMSPage() {
             transition: 'background 0.2s', letterSpacing: '0.04em',
           }}
         >
-          {submitting ? '投稿中...' : '投稿する'}
+          {submitting ? (submitStatus || '投稿中...') : '投稿する'}
         </button>
       </form>
     </div>

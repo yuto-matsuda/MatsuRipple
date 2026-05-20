@@ -24,6 +24,13 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UserDB(BaseModel):
+    id: int
+    username: str
+    email: str
+    hashed_password: str
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
@@ -43,6 +50,7 @@ class FestivalCreate(BaseModel):
     start_datetime: Optional[str] = None
     end_datetime: Optional[str] = None
     venue: Optional[str] = None
+    thumbnail_url: Optional[str] = None
 
 
 class FestivalResponse(BaseModel):
@@ -55,6 +63,20 @@ class FestivalResponse(BaseModel):
     start_datetime: Optional[str] = None
     end_datetime: Optional[str] = None
     venue: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    user_id: Optional[int] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class FestivalGalleryPhotoResponse(BaseModel):
+    id: int
+    festival_id: int
+    filename: str
+    original_name: Optional[str] = None
+    order_index: int
+    user_id: Optional[int] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -83,6 +105,7 @@ class PhotoResponse(BaseModel):
     filename: str
     original_name: Optional[str] = None
     is_public: bool
+    user_id: Optional[int] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

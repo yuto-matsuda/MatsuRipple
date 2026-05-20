@@ -112,7 +112,7 @@ export default useFestivals;
 ### フロントエンド
 | コマンド | 説明 |
 |---------|------|
-| `pnpm run dev` | 開発サーバー起動 |
+| `pnpm run dev` | 開発サーバ起動 |
 | `pnpm test` | テスト実行 |
 | `pnpm run lint` | ESLint実行 |
 | `pnpm run build` | 本番ビルド |
@@ -122,4 +122,5 @@ export default useFestivals;
 |---------|------|
 | `activate` | 仮想環境の起動 |
 | `deactivate` | 仮想環境の終了 |
-| `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` | 開発サーバー起動 |
+| `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` | 開発サーバ起動 |
+| `pkill -f "uvicorn app.main" 2>/dev/null; sleep 1 && echo "Killed"` | 開発サーバ停止 |
