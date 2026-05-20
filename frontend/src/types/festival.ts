@@ -8,6 +8,8 @@ export interface Festival {
     start_datetime: string | null;
     end_datetime: string | null;
     venue: string | null;
+    thumbnail_url: string | null;
+    user_id: number | null;
     created_at: string;
 }
 
@@ -20,4 +22,5 @@ export interface FestivalCreate {
     start_datetime?: string;
     end_datetime?: string;
     venue?: string;
+    thumbnail_url?: string;
 }

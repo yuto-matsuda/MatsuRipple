@@ -2,8 +2,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { fetchFestival } from '../api/festivals';
 import type { Festival } from '../types/festival';
+import { fetchFestivalGallery } from '../api/festivalGallery';
+import type { FestivalGalleryPhoto } from '../types/festivalGallery';
 import { ParticipationForm } from '../components/ParticipationForm';
 import { PhotoGallery } from '../components/PhotoGallery';
+import { PhotoSwiper } from '../components/PhotoSwiper';
 import useParticipants from '../hooks/useParticipants';
 import usePhotos from '../hooks/usePhotos';
 
@@ -13,6 +16,7 @@ export function FestivalDetailPage() {
   const festivalId = Number(id);
   const [festival, setFestival] = useState<Festival | null>(null);
   const [loading, setLoading] = useState(true);
+  const [galleryPhotos, setGalleryPhotos] = useState<FestivalGalleryPhoto[]>([]);
   const { register, submitting, error, success } = useParticipants();
   const { photos, uploading, upload } = usePhotos(festivalId);
   const isAuthenticated = !!localStorage.getItem('token');
@@ -21,6 +25,10 @@ export function FestivalDetailPage() {
     fetchFestival(festivalId)
       .then(setFestival)
       .finally(() => setLoading(false));
+  }, [festivalId]);
+
+  useEffect(() => {
+    fetchFestivalGallery(festivalId).then(setGalleryPhotos);
   }, [festivalId]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +76,7 @@ export function FestivalDetailPage() {
       </button>
 
       {/* Hero banner */}
-      <div style={{ borderRadius: '14px', overflow: 'hidden', marginBottom: '28px', position: 'relative', height: '200px', background: 'linear-gradient(135deg, #2d5422 0%, #4e8b3f 60%, #6aab4d 100%)' }}>
+      <div style={{ borderRadius: '14px', overflow: 'hidden', marginBottom: '28px', position: 'relative', height: '200px', background: 'linear-gradient(135deg, #2d5422 0%, #4e8b3f 60%, #6aab4d 100%)', ...(festival.thumbnail_url ? { backgroundImage: `url(${festival.thumbnail_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(28,46,23,0.7) 0%, transparent 60%)' }} />
         <div style={{ position: 'absolute', bottom: '20px', left: '24px' }}>
           {festival.region && (
@@ -92,6 +100,13 @@ export function FestivalDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Topic photo swiper */}
+      {galleryPhotos.length > 0 && (
+        <div style={{ marginBottom: '24px' }}>
+          <PhotoSwiper photos={galleryPhotos} />
+        </div>
+      )}
 
       {/* Description */}
       {festival.description && (

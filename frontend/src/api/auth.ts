@@ -11,6 +11,11 @@ export const registerUser = async (username: string, email: string, password: st
     return response.data;
 };
 
+export const fetchMe = async (): Promise<UserResponse> => {
+    const response = await apiClient.get<UserResponse>('/auth/me');
+    return response.data;
+};
+
 export const deleteAccount = async (): Promise<void> => {
     await apiClient.delete('/auth/me');
 };
