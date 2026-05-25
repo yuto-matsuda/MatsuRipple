@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { fetchFestival } from '../api/festivals';
 import type { Festival } from '../types/festival';
 import { fetchFestivalGallery } from '../api/festivalGallery';
@@ -21,6 +21,11 @@ export function FestivalDetailPage() {
   const { photos, uploading, upload } = usePhotos(festivalId);
   const isAuthenticated = !!localStorage.getItem('token');
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showUploadPanel, setShowUploadPanel] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [isPublicUpload, setIsPublicUpload] = useState(true);
+
   useEffect(() => {
     fetchFestival(festivalId)
       .then(setFestival)
@@ -31,11 +36,26 @@ export function FestivalDetailPage() {
     fetchFestivalGallery(festivalId).then(setGalleryPhotos);
   }, [festivalId]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const isPublic = window.confirm('この写真を公開しますか？（キャンセルで非公開）');
-    await upload(file, isPublic);
+    if (file) { setPendingFile(file); setShowUploadPanel(true); }
+  };
+
+  const handleUploadConfirm = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!pendingFile) return;
+    await upload(pendingFile, isPublicUpload);
+    setPendingFile(null);
+    setIsPublicUpload(true);
+    setShowUploadPanel(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleUploadCancel = () => {
+    setPendingFile(null);
+    setIsPublicUpload(true);
+    setShowUploadPanel(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const sectionCard: React.CSSProperties = {
@@ -134,12 +154,37 @@ export function FestivalDetailPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={sectionTitle}>写真</div>
           {isAuthenticated && (
-            <label style={{ fontSize: '12px', fontWeight: 500, padding: '6px 14px', borderRadius: '8px', background: '#4e8b3f', color: 'white', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+            <label style={{ fontSize: '12px', fontWeight: 600, padding: '6px 14px', borderRadius: '8px', background: uploading ? '#9ab88e' : '#4e8b3f', color: 'white', cursor: uploading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)' }}>
               {uploading ? 'アップロード中...' : '写真を追加'}
-              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
+              <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading} onChange={handleFileSelect} />
             </label>
           )}
         </div>
+
+        {/* アップロードオプションパネル */}
+        {showUploadPanel && pendingFile && (
+          <form onSubmit={handleUploadConfirm} style={{ background: '#f4f7f0', borderRadius: '10px', padding: '14px', marginBottom: '14px', border: '1px solid #c8d8be' }}>
+            <div style={{ fontSize: '13px', color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '10px', fontWeight: 500 }}>
+              📎 {pendingFile.name}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '6px' }}>公開設定</div>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontFamily: 'var(--font-body)', color: '#1c2e17', cursor: 'pointer' }}>
+                  <input type="radio" name="festivalPhotoVis" checked={isPublicUpload} onChange={() => setIsPublicUpload(true)} /> 公開
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontFamily: 'var(--font-body)', color: '#1c2e17', cursor: 'pointer' }}>
+                  <input type="radio" name="festivalPhotoVis" checked={!isPublicUpload} onChange={() => setIsPublicUpload(false)} /> 非公開
+                </label>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" onClick={handleUploadCancel} style={{ flex: 1, background: 'white', color: '#4a6840', border: '1.5px solid #c8d8be', borderRadius: '8px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' }}>キャンセル</button>
+              <button type="submit" style={{ flex: 1, background: '#4e8b3f', color: 'white', border: 'none', borderRadius: '8px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' }}>アップロード</button>
+            </div>
+          </form>
+        )}
+
         <PhotoGallery photos={photos} />
       </div>
     </div>

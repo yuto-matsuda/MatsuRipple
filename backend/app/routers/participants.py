@@ -9,7 +9,7 @@ router = APIRouter()
 @router.post("/", response_model=schemas.ParticipantResponse, status_code=201)
 def register_participant(participant: schemas.ParticipantCreate):
     sb = get_supabase()
-    if not sb.table("festivals").select("id").eq("id", participant.festival_id).maybe_single().execute().data:
+    if not sb.table("festivals").select("id").eq("id", participant.festival_id).execute().data:
         raise HTTPException(status_code=404, detail="Festival not found")
     data = participant.model_dump()
     result = sb.table("participants").insert(data).execute()

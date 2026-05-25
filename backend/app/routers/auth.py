@@ -9,9 +9,9 @@ router = APIRouter()
 @router.post("/register", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user: schemas.UserCreate):
     sb = get_supabase()
-    if sb.table("users").select("id").eq("username", user.username).maybe_single().execute().data:
+    if sb.table("users").select("id").eq("username", user.username).execute().data:
         raise HTTPException(status_code=400, detail="Username already registered")
-    if sb.table("users").select("id").eq("email", user.email).maybe_single().execute().data:
+    if sb.table("users").select("id").eq("email", user.email).execute().data:
         raise HTTPException(status_code=400, detail="Email already registered")
     result = sb.table("users").insert({
         "username": user.username,
@@ -25,8 +25,8 @@ def register(user: schemas.UserCreate):
 @router.post("/login", response_model=schemas.Token)
 def login(form: schemas.LoginRequest):
     sb = get_supabase()
-    result = sb.table("users").select("*").eq("email", form.email).maybe_single().execute()
-    user_data = result.data
+    result = sb.table("users").select("*").eq("email", form.email).execute()
+    user_data = result.data[0] if result.data else None
     if not user_data or not verify_password(form.password, user_data["hashed_password"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     if user_data["id"] in state.withdrawn_user_ids:
