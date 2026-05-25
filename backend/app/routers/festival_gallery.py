@@ -21,7 +21,7 @@ async def upload_gallery_photo(
         raise HTTPException(status_code=400, detail="Image files only")
 
     sb = get_supabase()
-    if not sb.table("festivals").select("id").eq("id", festival_id).maybe_single().execute().data:
+    if not sb.table("festivals").select("id").eq("id", festival_id).execute().data:
         raise HTTPException(status_code=404, detail="Festival not found")
 
     ext = os.path.splitext(file.filename or "photo")[1] or ".jpg"

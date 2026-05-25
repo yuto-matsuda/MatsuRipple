@@ -102,10 +102,103 @@ class ParticipantResponse(BaseModel):
 class PhotoResponse(BaseModel):
     id: int
     festival_id: Optional[int] = None
+    group_id: Optional[int] = None
     filename: str
     original_name: Optional[str] = None
     is_public: bool
     user_id: Optional[int] = None
     created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ── Photo update ───────────────────────────────────────
+class PhotoUpdate(BaseModel):
+    is_public: Optional[bool] = None
+
+
+# ── Group ──────────────────────────────────────────────
+class GroupLocationCreate(BaseModel):
+    name: str
+    order: int = 0
+
+
+class GroupCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    locations: list[GroupLocationCreate] = []
+
+
+class GroupUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+
+class GroupLocationResponse(BaseModel):
+    id: int
+    group_id: int
+    name: str
+    order: int
+
+    model_config = {"from_attributes": True}
+
+
+class GroupMemberResponse(BaseModel):
+    id: int
+    group_id: int
+    user_id: int
+    username: str
+    joined_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class GroupResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    creator_id: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class GroupFestivalResponse(BaseModel):
+    id: int
+    group_id: int
+    festival_id: int
+    festival_name: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class GroupDetailResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    creator_id: int
+    created_at: datetime
+    locations: list[GroupLocationResponse] = []
+    members: list[GroupMemberResponse] = []
+    festivals: list[GroupFestivalResponse] = []
+
+    model_config = {"from_attributes": True}
+
+
+# ── Invitation ─────────────────────────────────────────
+class InvitationCreate(BaseModel):
+    username: str
+
+
+class InvitationResponse(BaseModel):
+    id: int
+    group_id: int
+    inviter_id: int
+    invitee_id: int
+    status: str
+    created_at: datetime
+    group_name: Optional[str] = None
+    inviter_username: Optional[str] = None
 
     model_config = {"from_attributes": True}

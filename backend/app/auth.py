@@ -33,10 +33,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 def _fetch_user_by_username(username: str) -> Optional[schemas.UserDB]:
     sb = get_supabase()
-    result = sb.table("users").select("*").eq("username", username).maybe_single().execute()
+    result = sb.table("users").select("*").eq("username", username).execute()
     if not result.data:
         return None
-    return schemas.UserDB(**result.data)
+    return schemas.UserDB(**result.data[0])
 
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> schemas.UserResponse:

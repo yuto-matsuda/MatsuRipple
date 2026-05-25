@@ -8,7 +8,7 @@ export function Navbar() {
   const links = [
     { to: '/', label: '地図' },
     { to: '/photos', label: '写真' },
-    ...(isAuthenticated ? [{ to: '/cms', label: '祭り投稿' }] : []),
+    ...(isAuthenticated ? [{ to: '/cms', label: '祭り投稿' }, { to: '/groups', label: 'グループ' }] : []),
   ];
 
   const isActive = (to: string) =>

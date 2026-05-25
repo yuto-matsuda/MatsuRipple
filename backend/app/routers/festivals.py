@@ -30,10 +30,10 @@ def list_festivals():
 @router.get("/{festival_id}", response_model=schemas.FestivalResponse)
 def get_festival(festival_id: int):
     sb = get_supabase()
-    result = sb.table("festivals").select("*").eq("id", festival_id).maybe_single().execute()
+    result = sb.table("festivals").select("*").eq("id", festival_id).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="Festival not found")
-    return schemas.FestivalResponse.model_validate(result.data)
+    return schemas.FestivalResponse.model_validate(result.data[0])
 
 
 @router.post("/", response_model=schemas.FestivalResponse, status_code=201)
@@ -55,10 +55,10 @@ def update_festival(
     current_user: schemas.UserResponse = Depends(get_current_user),
 ):
     sb = get_supabase()
-    existing = sb.table("festivals").select("user_id").eq("id", festival_id).maybe_single().execute()
+    existing = sb.table("festivals").select("user_id").eq("id", festival_id).execute()
     if not existing.data:
         raise HTTPException(status_code=404, detail="Festival not found")
-    if existing.data["user_id"] != current_user.id:
+    if existing.data[0]["user_id"] != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
     data = {k: v for k, v in festival.model_dump().items() if v is not None}
     result = sb.table("festivals").update(data).eq("id", festival_id).execute()
@@ -71,9 +71,9 @@ def delete_festival(
     current_user: schemas.UserResponse = Depends(get_current_user),
 ):
     sb = get_supabase()
-    existing = sb.table("festivals").select("user_id").eq("id", festival_id).maybe_single().execute()
+    existing = sb.table("festivals").select("user_id").eq("id", festival_id).execute()
     if not existing.data:
         raise HTTPException(status_code=404, detail="Festival not found")
-    if existing.data["user_id"] != current_user.id:
+    if existing.data[0]["user_id"] != current_user.id:
         raise HTTPException(status_code=403, detail="Forbidden")
     sb.table("festivals").delete().eq("id", festival_id).execute()
