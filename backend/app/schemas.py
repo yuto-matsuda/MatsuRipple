@@ -186,6 +186,17 @@ class GroupDetailResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ── Group participation ────────────────────────────────
+class GroupParticipateRequest(BaseModel):
+    festival_id: int
+    message: Optional[str] = None
+
+
+class GroupParticipateResponse(BaseModel):
+    registered: int
+    total: int
+
+
 # ── Invitation ─────────────────────────────────────────
 class InvitationCreate(BaseModel):
     username: str
