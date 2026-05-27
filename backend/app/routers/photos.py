@@ -80,6 +80,23 @@ def update_photo(
     return schemas.PhotoResponse.model_validate(result.data[0])
 
 
+@router.delete("/{photo_id}", status_code=204)
+def delete_photo(
+    photo_id: int,
+    current_user: schemas.UserResponse = Depends(get_current_user),
+):
+    sb = get_supabase()
+    result = sb.table("photos").select("*").eq("id", photo_id).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    row = result.data[0]
+    if row["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    storage_path = row["filename"].split(f"/{BUCKET}/")[-1]
+    sb.storage.from_(BUCKET).remove([storage_path])
+    sb.table("photos").delete().eq("id", photo_id).execute()
+
+
 @router.get("/", response_model=List[schemas.PhotoResponse])
 def list_photos(festival_id: Optional[int] = None):
     sb = get_supabase()

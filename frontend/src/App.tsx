@@ -7,6 +7,7 @@ import { PhotoPage } from './pages/PhotoPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { AccountPage } from './pages/AccountPage';
+import { EditFestivalPage } from './pages/EditFestivalPage';
 import { GroupsPage } from './pages/GroupsPage';
 import { GroupDetailPage } from './pages/GroupDetailPage';
 
@@ -20,6 +21,7 @@ function App() {
             <Route path="/" element={<MapPage />} />
             <Route path="/festivals/:id" element={<FestivalDetailPage />} />
             <Route path="/cms" element={<CMSPage />} />
+            <Route path="/cms/:id" element={<EditFestivalPage />} />
             <Route path="/photos" element={<PhotoPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />

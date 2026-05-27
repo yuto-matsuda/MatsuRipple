@@ -8,6 +8,10 @@ export const fetchFestivalGallery = async (festivalId: number): Promise<Festival
     return response.data;
 };
 
+export const deleteFestivalGalleryPhoto = async (photoId: number): Promise<void> => {
+    await apiClient.delete(`/festival-gallery/${photoId}`);
+};
+
 export const uploadFestivalGalleryPhoto = async (
     file: File,
     festivalId: number,
