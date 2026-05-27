@@ -126,6 +126,49 @@ def leave_group(
     sb.table("group_members").delete().eq("group_id", group_id).eq("user_id", current_user.id).execute()
 
 
+@router.post("/{group_id}/participate", response_model=schemas.GroupParticipateResponse, status_code=201)
+def group_participate(
+    group_id: int,
+    body: schemas.GroupParticipateRequest,
+    current_user: schemas.UserResponse = Depends(get_current_user),
+):
+    sb = get_supabase()
+
+    # 作成者チェック
+    group_result = sb.table("groups").select("creator_id").eq("id", group_id).execute()
+    if not group_result.data:
+        raise HTTPException(status_code=404, detail="Group not found")
+    if group_result.data[0]["creator_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the creator can register the group")
+
+    # 祭りの存在チェック
+    if not sb.table("festivals").select("id").eq("id", body.festival_id).execute().data:
+        raise HTTPException(status_code=404, detail="Festival not found")
+
+    # 全メンバー取得
+    members = sb.table("group_members").select("user_id").eq("group_id", group_id).execute().data
+    total = len(members)
+
+    # 各メンバーのユーザー情報を取得して一括登録
+    records = []
+    for m in members:
+        user_result = sb.table("users").select("username, email").eq("id", m["user_id"]).execute()
+        if user_result.data:
+            u = user_result.data[0]
+            records.append({
+                "festival_id": body.festival_id,
+                "name": u["username"],
+                "email": u["email"],
+                "message": body.message,
+                "group_id": group_id,
+            })
+
+    if records:
+        sb.table("participants").insert(records).execute()
+
+    return schemas.GroupParticipateResponse(registered=len(records), total=total)
+
+
 @router.get("/{group_id}/festivals", response_model=List[schemas.GroupFestivalResponse])
 def list_group_festivals(
     group_id: int,

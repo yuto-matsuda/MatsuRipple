@@ -44,3 +44,20 @@ export const addGroupFestival = async (groupId: number, festivalId: number): Pro
 export const removeGroupFestival = async (groupId: number, festivalId: number): Promise<void> => {
     await apiClient.delete(`/groups/${groupId}/festivals/${festivalId}`);
 };
+
+interface GroupParticipateResult {
+    registered: number;
+    total: number;
+}
+
+export const groupParticipate = async (
+    groupId: number,
+    festivalId: number,
+    message?: string,
+): Promise<GroupParticipateResult> => {
+    const response = await apiClient.post<GroupParticipateResult>(
+        `/groups/${groupId}/participate`,
+        { festival_id: festivalId, message },
+    );
+    return response.data;
+};
