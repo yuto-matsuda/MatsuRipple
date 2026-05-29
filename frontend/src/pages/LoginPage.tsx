@@ -5,14 +5,24 @@ import useAuth from '../hooks/useAuth';
 const inputStyle: React.CSSProperties = {
   width: '100%',
   border: '1.5px solid #c8d8be',
-  borderRadius: '8px',
-  padding: '10px 12px',
+  borderRadius: '10px',
+  padding: '11px 13px',
   fontSize: '14px',
   fontFamily: 'var(--font-body)',
   color: '#1c2e17',
   background: 'white',
   outline: 'none',
   boxSizing: 'border-box',
+  transition: 'border-color 0.15s',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: '12px',
+  fontWeight: 600,
+  color: '#4a6840',
+  marginBottom: '6px',
+  letterSpacing: '0.02em',
 };
 
 export function LoginPage() {
@@ -31,53 +41,130 @@ export function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f7f0' }}>
+    <div style={{
+      minHeight: 'calc(100vh - 52px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#f4f7f0',
+      padding: '20px',
+    }}>
       <div style={{
-        background: 'white', border: '1px solid #c8d8be', borderRadius: '16px',
-        boxShadow: '0 4px 24px rgba(28,46,23,0.10)', padding: '40px 36px', width: '100%', maxWidth: '360px',
+        background: 'white',
+        borderRadius: '20px',
+        boxShadow: '0 8px 40px rgba(28,46,23,0.13)',
+        width: '100%',
+        maxWidth: '380px',
+        overflow: 'hidden',
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 700, color: '#1c2e17', letterSpacing: '0.06em' }}>
-            ログイン
+        {/* ブランドヘッダー */}
+        <div style={{
+          background: 'linear-gradient(135deg, #2d5422 0%, #4e8b3f 100%)',
+          padding: '28px 36px 24px',
+          textAlign: 'center',
+        }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '44px',
+            height: '44px',
+            background: 'rgba(255,255,255,0.15)',
+            borderRadius: '12px',
+            marginBottom: '10px',
+          }}>
+            <span style={{ fontSize: '22px' }}>🏮</span>
           </div>
-          <div style={{ fontSize: '13px', color: '#7a9470', marginTop: '6px', fontFamily: 'var(--font-body)' }}>
-            MatsuRipple 管理者
+          <div style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '20px',
+            fontWeight: 700,
+            color: 'white',
+            letterSpacing: '0.08em',
+          }}>
+            MatsuRipple
+          </div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.72)', marginTop: '4px', fontFamily: 'var(--font-body)' }}>
+            ログインして祭りを管理
           </div>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>
-              メールアドレス
-            </label>
-            <input style={inputStyle} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@email.com" />
+
+        {/* フォーム */}
+        <div style={{ padding: '28px 32px 32px' }}>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={labelStyle}>メールアドレス</label>
+              <input
+                style={inputStyle}
+                type='email'
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder='example@email.com'
+              />
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>パスワード</label>
+              <input
+                style={inputStyle}
+                type='password'
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder='••••••••'
+              />
+            </div>
+            {error && (
+              <div style={{
+                fontSize: '12px',
+                color: '#c85a2c',
+                background: '#fff3ef',
+                border: '1px solid #f0c0a0',
+                borderRadius: '8px',
+                padding: '9px 12px',
+                marginBottom: '16px',
+                fontFamily: 'var(--font-body)',
+              }}>
+                {error}
+              </div>
+            )}
+            <button
+              type='submit'
+              disabled={loading}
+              style={{
+                width: '100%',
+                background: loading ? '#9ab88e' : '#4e8b3f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '12px',
+                fontSize: '14px',
+                fontWeight: 700,
+                fontFamily: 'var(--font-body)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                letterSpacing: '0.03em',
+                transition: 'background 0.2s',
+              }}
+            >
+              {loading ? 'ログイン中...' : 'ログイン'}
+            </button>
+          </form>
+
+          <div style={{
+            marginTop: '20px',
+            paddingTop: '18px',
+            borderTop: '1px solid #e4eddf',
+            textAlign: 'center',
+            fontSize: '12px',
+            color: '#7a9470',
+            fontFamily: 'var(--font-body)',
+          }}>
+            アカウントをお持ちでない方は{' '}
+            <Link to='/register' style={{ color: '#c85a2c', textDecoration: 'none', fontWeight: 700 }}>
+              新規登録
+            </Link>
           </div>
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>
-              パスワード
-            </label>
-            <input style={inputStyle} type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-          </div>
-          {error && <div style={{ fontSize: '12px', color: '#c85a2c', marginBottom: '12px' }}>{error}</div>}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%', background: loading ? '#9ab88e' : '#4e8b3f',
-              color: 'white', border: 'none', borderRadius: '8px',
-              padding: '11px', fontSize: '14px', fontWeight: 600,
-              fontFamily: 'var(--font-body)', cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'background 0.2s',
-            }}
-          >
-            {loading ? 'ログイン中...' : 'ログイン'}
-          </button>
-        </form>
-        <p style={{ textAlign: 'center', fontSize: '12px', color: '#7a9470', marginTop: '20px', fontFamily: 'var(--font-body)' }}>
-          アカウントをお持ちでない方は{' '}
-          <Link to="/register" style={{ color: '#4e8b3f', textDecoration: 'none', fontWeight: 600 }}>
-            新規登録
-          </Link>
-        </p>
+        </div>
       </div>
     </div>
   );
