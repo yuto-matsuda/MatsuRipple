@@ -7,7 +7,6 @@ export default defineConfig({
   build: {
     outDir: '../docs',
   },
-
   plugins: [react(), tailwindcss()],
   server: {
     allowedHosts: true,
