@@ -12,6 +12,10 @@ export const fetchMyPhotos = async (): Promise<Photo[]> => {
     return response.data;
 };
 
+export const deletePhoto = async (photoId: number): Promise<void> => {
+    await apiClient.delete(`/photos/${photoId}`);
+};
+
 export const updatePhotoVisibility = async (photoId: number, isPublic: boolean): Promise<Photo> => {
     const response = await apiClient.patch<Photo>(`/photos/${photoId}`, { is_public: isPublic });
     return response.data;

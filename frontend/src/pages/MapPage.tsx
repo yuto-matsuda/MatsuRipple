@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useFestivals from '../hooks/useFestivals';
 import { MapView } from '../components/MapView';
 import { FestivalCard } from '../components/FestivalCard';
@@ -9,7 +8,12 @@ export function MapPage() {
   const { festivals, loading } = useFestivals();
   const [search, setSearch] = useState('');
   const [activeFestival, setActiveFestival] = useState<Festival | null>(null);
-  const navigate = useNavigate();
+  const [focusKey, setFocusKey] = useState(0);
+
+  const handleSelectFestival = (festival: Festival) => {
+    setActiveFestival(festival);
+    setFocusKey((k) => k + 1);
+  };
 
   const filtered = festivals.filter(
     (f) => f.name.includes(search) || (f.region ?? '').includes(search),
@@ -92,7 +96,7 @@ export function MapPage() {
                   key={festival.id}
                   festival={festival}
                   isActive={activeFestival?.id === festival.id}
-                  onClick={setActiveFestival}
+                  onClick={handleSelectFestival}
                 />
               ))}
             </div>
@@ -106,100 +110,10 @@ export function MapPage() {
           festivals={filtered}
           height='100%'
           activeFestival={activeFestival}
-          onSelectFestival={setActiveFestival}
+          focusKey={focusKey}
+          onSelectFestival={handleSelectFestival}
         />
 
-        {/* 選択ポップアップ */}
-        {activeFestival && (
-          <div style={{
-            position: 'absolute',
-            bottom: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'white',
-            borderRadius: '16px',
-            padding: '16px 20px',
-            border: '1px solid #d6e4ce',
-            boxShadow: '0 8px 32px rgba(28,46,23,0.16)',
-            minWidth: '260px',
-            maxWidth: '340px',
-            zIndex: 500,
-          }}>
-            {activeFestival.region && (
-              <div style={{
-                display: 'inline-block',
-                fontSize: '10px',
-                fontWeight: 700,
-                color: '#c85a2c',
-                background: '#fff0e8',
-                borderRadius: '4px',
-                padding: '1px 7px',
-                marginBottom: '6px',
-                letterSpacing: '0.05em',
-              }}>
-                {activeFestival.region}
-              </div>
-            )}
-            <div style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '17px',
-              fontWeight: 700,
-              color: '#1c2e17',
-              marginBottom: '4px',
-              lineHeight: 1.3,
-            }}>
-              {activeFestival.name}
-            </div>
-            {activeFestival.start_datetime && (
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#c85a2c', marginBottom: '4px' }}>
-                📅 {activeFestival.start_datetime.replace('T', ' ').slice(0, 16)}
-              </div>
-            )}
-            {activeFestival.venue && (
-              <div style={{ fontSize: '12px', color: '#7a9470', marginBottom: '12px' }}>
-                📍 {activeFestival.venue}
-              </div>
-            )}
-            {!activeFestival.venue && activeFestival.start_datetime && (
-              <div style={{ marginBottom: '12px' }} />
-            )}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => setActiveFestival(null)}
-                style={{
-                  background: '#f4f7f0',
-                  color: '#4a6840',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 14px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                }}
-              >
-                閉じる
-              </button>
-              <button
-                onClick={() => navigate(`/festivals/${activeFestival.id}`)}
-                style={{
-                  flex: 1,
-                  background: '#c85a2c',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 18px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                }}
-              >
-                詳細を見る →
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

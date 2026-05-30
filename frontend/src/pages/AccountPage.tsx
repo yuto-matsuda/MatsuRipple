@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useDeleteAccount from '../hooks/useDeleteAccount';
 import useUserHistory from '../hooks/useUserHistory';
+import { deleteFestival } from '../api/festivals';
+import { deletePhoto } from '../api/photos';
 import { PhotoGallery } from '../components/PhotoGallery';
 
 const sectionCard: React.CSSProperties = {
@@ -27,6 +29,38 @@ export function AccountPage() {
   const { showConfirm, loading: deleteLoading, error: deleteError, openConfirm, closeConfirm, confirm } = useDeleteAccount();
   const { user, festivals, photos, loading } = useUserHistory();
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [deletedFestivalIds, setDeletedFestivalIds] = useState<Set<number>>(new Set());
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [festivalDeleting, setFestivalDeleting] = useState(false);
+  const [festivalDeleteError, setFestivalDeleteError] = useState<string | null>(null);
+
+  const displayedFestivals = festivals.filter((f) => !deletedFestivalIds.has(f.id));
+  const [deletedPhotoIds, setDeletedPhotoIds] = useState<Set<number>>(new Set());
+  const displayedPhotos = photos.filter((p) => !deletedPhotoIds.has(p.id));
+
+  const handlePhotoDelete = async (photoId: number) => {
+    setDeletedPhotoIds((prev) => new Set([...prev, photoId]));
+    try {
+      await deletePhoto(photoId);
+    } catch {
+      setDeletedPhotoIds((prev) => { const next = new Set(prev); next.delete(photoId); return next; });
+    }
+  };
+
+  const handleFestivalDelete = async () => {
+    if (confirmDeleteId === null) return;
+    setFestivalDeleting(true);
+    setFestivalDeleteError(null);
+    try {
+      await deleteFestival(confirmDeleteId);
+      setDeletedFestivalIds((prev) => new Set([...prev, confirmDeleteId]));
+      setConfirmDeleteId(null);
+    } catch {
+      setFestivalDeleteError('削除に失敗しました。');
+    } finally {
+      setFestivalDeleting(false);
+    }
+  };
 
   return (
     <div style={{ maxWidth: '680px', margin: '0 auto', padding: '32px 20px 48px', background: '#f4f7f0', minHeight: '100vh' }}>
@@ -45,7 +79,6 @@ export function AccountPage() {
           <div style={{ fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>読み込み中...</div>
         ) : user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {/* アバター */}
             <div style={{
               width: '52px',
               height: '52px',
@@ -76,7 +109,7 @@ export function AccountPage() {
       <div style={sectionCard}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
           <div style={sectionTitle}>投稿した祭り</div>
-          {festivals.length > 0 && (
+          {displayedFestivals.length > 0 && (
             <span style={{
               fontSize: '11px',
               fontWeight: 700,
@@ -86,20 +119,20 @@ export function AccountPage() {
               padding: '2px 9px',
               fontFamily: 'var(--font-body)',
             }}>
-              {festivals.length}件
+              {displayedFestivals.length}件
             </span>
           )}
         </div>
 
         {loading ? (
           <div style={{ fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>読み込み中...</div>
-        ) : festivals.length === 0 ? (
+        ) : displayedFestivals.length === 0 ? (
           <div style={{ fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)', textAlign: 'center', padding: '20px 0' }}>
             まだ祭り情報を投稿していません
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
-            {festivals.map((f) => (
+            {displayedFestivals.map((f) => (
               <div
                 key={f.id}
                 onClick={() => navigate(`/festivals/${f.id}`)}
@@ -149,13 +182,37 @@ export function AccountPage() {
                     <div style={{ fontSize: '11px', color: '#7a9470', marginTop: '2px' }}>📍 {f.venue}</div>
                   )}
                 </div>
-                {f.thumbnail_url && (
-                  <img
-                    src={f.thumbnail_url}
-                    alt={f.name}
-                    style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0, border: '1px solid #e4eddf' }}
-                  />
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+                  {f.thumbnail_url && (
+                    <img
+                      src={f.thumbnail_url}
+                      alt={f.name}
+                      style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e4eddf' }}
+                    />
+                  )}
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigate(`/cms/${f.id}`); }}
+                      style={{
+                        fontSize: '11px', fontWeight: 600, padding: '4px 10px',
+                        background: 'white', color: '#4a6840', border: '1px solid #c8d8be',
+                        borderRadius: '6px', cursor: 'pointer', fontFamily: 'var(--font-body)',
+                      }}
+                    >
+                      編集
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(f.id); }}
+                      style={{
+                        fontSize: '11px', fontWeight: 600, padding: '4px 10px',
+                        background: 'white', color: '#c85a2c', border: '1px solid #e8a080',
+                        borderRadius: '6px', cursor: 'pointer', fontFamily: 'var(--font-body)',
+                      }}
+                    >
+                      削除
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -185,7 +242,7 @@ export function AccountPage() {
         {loading ? (
           <div style={{ fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>読み込み中...</div>
         ) : (
-          <PhotoGallery photos={photos} />
+          <PhotoGallery photos={displayedPhotos} onDelete={handlePhotoDelete} />
         )}
       </div>
 
@@ -214,6 +271,56 @@ export function AccountPage() {
           退会する
         </button>
       </div>
+
+      {/* 祭り削除確認ダイアログ */}
+      {confirmDeleteId !== null && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200,
+        }}>
+          <div style={{
+            background: 'white', borderRadius: '16px', padding: '32px 28px',
+            width: '100%', maxWidth: '320px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+          }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700, color: '#1c2e17', marginBottom: '12px' }}>
+              祭りを削除しますか？
+            </div>
+            <p style={{ fontSize: '13px', color: '#7a9470', marginBottom: '24px', fontFamily: 'var(--font-body)', lineHeight: 1.6 }}>
+              削除すると元に戻せません。投稿した写真もあわせて削除されます。
+            </p>
+            {festivalDeleteError && (
+              <p style={{ fontSize: '12px', color: '#c85a2c', marginBottom: '12px', fontFamily: 'var(--font-body)' }}>{festivalDeleteError}</p>
+            )}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => { setConfirmDeleteId(null); setFestivalDeleteError(null); }}
+                disabled={festivalDeleting}
+                style={{
+                  flex: 1, background: 'white', color: '#4a6840',
+                  border: '1.5px solid #c8d8be', borderRadius: '8px',
+                  padding: '10px', fontSize: '13px', fontWeight: 600,
+                  fontFamily: 'var(--font-body)', cursor: 'pointer',
+                }}
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleFestivalDelete}
+                disabled={festivalDeleting}
+                style={{
+                  flex: 1, background: festivalDeleting ? '#e8a090' : '#c85a2c',
+                  color: 'white', border: 'none', borderRadius: '8px',
+                  padding: '10px', fontSize: '13px', fontWeight: 600,
+                  fontFamily: 'var(--font-body)', cursor: festivalDeleting ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.2s',
+                }}
+              >
+                {festivalDeleting ? '削除中...' : '削除する'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 退会確認ダイアログ */}
       {showConfirm && (
