@@ -10,6 +10,7 @@ import { AccountPage } from './pages/AccountPage';
 import { EditFestivalPage } from './pages/EditFestivalPage';
 import { GroupsPage } from './pages/GroupsPage';
 import { GroupDetailPage } from './pages/GroupDetailPage';
+import { ParticipantsPage } from './pages/ParticipantsPage';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/account" element={<AccountPage />} />
             <Route path="/groups" element={<GroupsPage />} />
             <Route path="/groups/:id" element={<GroupDetailPage />} />
+            <Route path="/festivals/:id/participants" element={<ParticipantsPage />} />
           </Routes>
         </main>
       </div>

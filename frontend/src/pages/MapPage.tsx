@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Search } from 'lucide-react';
 import useFestivals from '../hooks/useFestivals';
 import { MapView } from '../components/MapView';
 import { FestivalCard } from '../components/FestivalCard';
@@ -37,10 +38,7 @@ export function MapPage() {
         {/* 検索欄 */}
         <div style={{ padding: '14px 12px 10px', background: '#f4f7f0' }}>
           <div style={{ position: 'relative' }}>
-            <span style={{
-              position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)',
-              fontSize: '13px', color: '#9ab88e', pointerEvents: 'none',
-            }}>🔍</span>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9ab88e', pointerEvents: 'none' }} />
             <input
               type='text'
               placeholder='祭りを検索...'

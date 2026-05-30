@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+
 import useAuth from '../hooks/useAuth';
 
 const inputStyle: React.CSSProperties = {
@@ -63,18 +64,6 @@ export function LoginPage() {
           padding: '28px 36px 24px',
           textAlign: 'center',
         }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '44px',
-            height: '44px',
-            background: 'rgba(255,255,255,0.15)',
-            borderRadius: '12px',
-            marginBottom: '10px',
-          }}>
-            <span style={{ fontSize: '22px' }}>🏮</span>
-          </div>
           <div style={{
             fontFamily: 'var(--font-display)',
             fontSize: '20px',

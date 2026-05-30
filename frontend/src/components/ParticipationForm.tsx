@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CheckCircle } from 'lucide-react';
 import type { ParticipantCreate } from '../types/participant';
 
 interface ParticipationFormProps {
@@ -48,8 +49,9 @@ export function ParticipationForm({
 
   if (success) {
     return (
-      <div style={{ background: '#edf3e7', border: '1px solid #9ab88e', borderRadius: '8px', padding: '16px', textAlign: 'center', color: '#2d5422', fontSize: '14px', fontFamily: 'var(--font-body)' }}>
-        ✓ 参加登録が完了しました！当日お会いしましょう。
+      <div style={{ background: '#edf3e7', border: '1px solid #9ab88e', borderRadius: '8px', padding: '16px', textAlign: 'center', color: '#2d5422', fontSize: '14px', fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <CheckCircle size={16} />
+        参加登録が完了しました！当日お会いしましょう。
       </div>
     );
   }

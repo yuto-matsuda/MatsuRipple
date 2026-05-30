@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Calendar, MapPin, Plus } from 'lucide-react';
 import useDeleteAccount from '../hooks/useDeleteAccount';
 import useUserHistory from '../hooks/useUserHistory';
 import { deleteFestival } from '../api/festivals';
@@ -174,12 +175,12 @@ export function AccountPage() {
                     {f.name}
                   </div>
                   {f.start_datetime && (
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#c85a2c', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      <span>📅</span>{f.start_datetime.replace('T', ' ').slice(0, 16)}
+                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#c85a2c', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Calendar size={11} />{f.start_datetime.replace('T', ' ').slice(0, 16)}
                     </div>
                   )}
                   {f.venue && (
-                    <div style={{ fontSize: '11px', color: '#7a9470', marginTop: '2px' }}>📍 {f.venue}</div>
+                    <div style={{ fontSize: '11px', color: '#7a9470', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={11} />{f.venue}</div>
                   )}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
@@ -191,6 +192,16 @@ export function AccountPage() {
                     />
                   )}
                   <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigate(`/festivals/${f.id}/participants`); }}
+                      style={{
+                        fontSize: '11px', fontWeight: 600, padding: '4px 10px',
+                        background: '#fff0e8', color: '#c85a2c', border: '1px solid #e8c0a0',
+                        borderRadius: '6px', cursor: 'pointer', fontFamily: 'var(--font-body)',
+                      }}
+                    >
+                      参加者
+                    </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); navigate(`/cms/${f.id}`); }}
                       style={{
@@ -230,9 +241,12 @@ export function AccountPage() {
             fontWeight: 600,
             cursor: 'pointer',
             fontFamily: 'var(--font-body)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
           }}
         >
-          ＋ 祭りを投稿する
+          <Plus size={14} /> 祭りを投稿する
         </button>
       </div>
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { X, Plus } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
 import { createFestival, updateFestival } from '../api/festivals';
@@ -323,9 +324,9 @@ export function CMSPage() {
                   <button
                     type="button"
                     onClick={() => handlePhotoRemove(i)}
-                    style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.45)', color: 'white', fontSize: '13px', width: '22px', height: '22px', borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
+                    style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.45)', color: 'white', width: '22px', height: '22px', borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    ×
+                    <X size={12} />
                   </button>
                 </div>
               ))}
@@ -335,7 +336,7 @@ export function CMSPage() {
           {/* 追加ボタン */}
           {photoFiles.length < MAX_PHOTOS && (
             <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500, padding: '8px 16px', borderRadius: '8px', border: '1.5px dashed #9ab88e', color: '#4a6840', cursor: 'pointer', fontFamily: 'var(--font-body)', background: '#f8fbf5' }}>
-              ＋ 写真を追加（{photoFiles.length}/{MAX_PHOTOS}）
+              <Plus size={14} /> 写真を追加（{photoFiles.length}/{MAX_PHOTOS}）
               <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handlePhotoSelect} />
             </label>
           )}

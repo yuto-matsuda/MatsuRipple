@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
 import { useRef, useEffect } from 'react';
+import { Calendar, MapPin, ArrowRight } from 'lucide-react';
 import * as L from 'leaflet';
 import type { Festival } from '../types/festival';
 
@@ -103,13 +104,15 @@ export function MapView({ festivals, height = '500px', activeFestival, focusKey,
                 {festival.name}
               </div>
               {festival.start_datetime && (
-                <div style={{ fontSize: '12px', fontWeight: 600, color: '#c85a2c', marginBottom: '4px' }}>
-                  📅 {festival.start_datetime.replace('T', ' ').slice(0, 16)}
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#c85a2c', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Calendar size={11} />
+                  {festival.start_datetime.replace('T', ' ').slice(0, 16)}
                 </div>
               )}
               {festival.venue && (
-                <div style={{ fontSize: '12px', color: '#7a9470', marginBottom: '10px' }}>
-                  📍 {festival.venue}
+                <div style={{ fontSize: '12px', color: '#7a9470', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <MapPin size={11} />
+                  {festival.venue}
                 </div>
               )}
               {!festival.venue && festival.start_datetime && <div style={{ marginBottom: '10px' }} />}
@@ -126,9 +129,13 @@ export function MapView({ festivals, height = '500px', activeFestival, focusKey,
                   fontWeight: 600,
                   cursor: 'pointer',
                   fontFamily: 'var(--font-body)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
                 }}
               >
-                詳細を見る →
+                詳細を見る <ArrowRight size={14} />
               </button>
             </div>
           </Popup>

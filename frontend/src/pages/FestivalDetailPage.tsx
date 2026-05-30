@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
+import { ChevronLeft, Calendar, MapPin, Paperclip } from 'lucide-react';
 import { fetchFestival } from '../api/festivals';
 import type { Festival } from '../types/festival';
 import { fetchFestivalGallery } from '../api/festivalGallery';
@@ -92,7 +93,7 @@ export function FestivalDetailPage() {
         onClick={() => navigate('/')}
         style={{ fontSize: '13px', color: '#4a6840', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '4px', padding: 0, fontFamily: 'var(--font-body)' }}
       >
-        ← 地図に戻る
+        <ChevronLeft size={16} /> 地図に戻る
       </button>
 
       {/* Hero banner */}
@@ -108,14 +109,16 @@ export function FestivalDetailPage() {
             {festival.name}
           </h1>
           {festival.start_datetime && (
-            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', marginTop: '6px' }}>
-              📅 {festival.start_datetime.replace('T', ' ').slice(0, 16)}
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Calendar size={12} />
+              {festival.start_datetime.replace('T', ' ').slice(0, 16)}
               {festival.end_datetime && ` 〜 ${festival.end_datetime.replace('T', ' ').slice(0, 16)}`}
             </div>
           )}
           {festival.venue && (
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.70)', marginTop: '3px' }}>
-              📍 {festival.venue}
+            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.70)', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <MapPin size={12} />
+              {festival.venue}
             </div>
           )}
         </div>
@@ -164,8 +167,8 @@ export function FestivalDetailPage() {
         {/* アップロードオプションパネル */}
         {showUploadPanel && pendingFile && (
           <form onSubmit={handleUploadConfirm} style={{ background: '#f4f7f0', borderRadius: '10px', padding: '14px', marginBottom: '14px', border: '1px solid #c8d8be' }}>
-            <div style={{ fontSize: '13px', color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '10px', fontWeight: 500 }}>
-              📎 {pendingFile.name}
+            <div style={{ fontSize: '13px', color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '10px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Paperclip size={13} />{pendingFile.name}
             </div>
             <div style={{ marginBottom: '12px' }}>
               <div style={{ fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '6px' }}>公開設定</div>

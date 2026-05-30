@@ -94,6 +94,8 @@ class ParticipantResponse(BaseModel):
     festival_id: int
     name: str
     message: Optional[str] = None
+    group_id: Optional[int] = None
+    group_name: Optional[str] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import type { Photo } from '../types/photo';
 
 interface PhotoGalleryProps {
@@ -31,12 +32,12 @@ export function PhotoGallery({ photos, onDelete }: PhotoGalleryProps) {
               style={{
                 position: 'absolute', top: '4px', right: '4px',
                 background: 'rgba(0,0,0,0.5)', color: 'white',
-                fontSize: '13px', width: '22px', height: '22px',
+                width: '22px', height: '22px',
                 borderRadius: '50%', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >
-              ×
+              <X size={12} />
             </button>
           )}
         </div>
