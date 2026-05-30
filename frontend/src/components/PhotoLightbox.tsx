@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { FestivalGalleryPhoto } from '../types/festivalGallery';
 
 interface PhotoLightboxProps {
@@ -29,7 +30,6 @@ export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxPr
     background: 'rgba(255,255,255,0.15)',
     border: 'none',
     color: 'white',
-    fontSize: '24px',
     width: '44px',
     height: '44px',
     borderRadius: '50%',
@@ -58,12 +58,12 @@ export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxPr
         style={{
           position: 'absolute', top: '16px', right: '16px',
           background: 'rgba(255,255,255,0.15)', border: 'none',
-          color: 'white', fontSize: '20px', width: '40px', height: '40px',
+          color: 'white', width: '40px', height: '40px',
           borderRadius: '50%', cursor: 'pointer', display: 'flex',
           alignItems: 'center', justifyContent: 'center',
         }}
       >
-        ×
+        <X size={20} />
       </button>
 
       {/* ナビ + 画像 */}
@@ -72,7 +72,7 @@ export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxPr
         style={{ display: 'flex', alignItems: 'center', gap: '16px', maxWidth: '100%' }}
       >
         {photos.length > 1 && (
-          <button onClick={prev} style={navBtn}>‹</button>
+          <button onClick={prev} style={navBtn}><ChevronLeft size={24} /></button>
         )}
 
         <img
@@ -86,7 +86,7 @@ export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxPr
         />
 
         {photos.length > 1 && (
-          <button onClick={next} style={navBtn}>›</button>
+          <button onClick={next} style={navBtn}><ChevronRight size={24} /></button>
         )}
       </div>
 

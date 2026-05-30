@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ChevronLeft, Plus, X, Check, Paperclip } from 'lucide-react';
 import useGroupDetail from '../hooks/useGroupDetail';
 import usePhotos from '../hooks/usePhotos';
 import { fetchMe } from '../api/auth';
@@ -227,7 +228,7 @@ export function GroupDetailPage() {
 
       {/* ── ヘッダー ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-        <button onClick={() => navigate('/groups')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a9470', fontSize: '18px', padding: '0 4px', lineHeight: 1 }} aria-label="戻る">←</button>
+        <button onClick={() => navigate('/groups')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a9470', padding: '0 4px', display: 'flex', alignItems: 'center' }} aria-label="戻る"><ChevronLeft size={20} /></button>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '22px', fontWeight: 700, color: '#1c2e17', letterSpacing: '0.04em', margin: 0, flex: 1 }}>{group.name}</h1>
         {isCreator && (
           <button onClick={() => setShowEdit((v) => !v)} style={{ background: 'white', color: '#4a6840', border: '1.5px solid #c8d8be', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' }}>編集</button>
@@ -267,8 +268,8 @@ export function GroupDetailPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600, color: '#1c2e17' }}>関連祭り</div>
           {isCreator && (
-            <button onClick={() => { setShowFestivalSearch((v) => !v); setFestivalMessage(null); }} style={{ fontSize: '12px', color: '#4a6840', background: 'none', border: '1.5px dashed #9ab88e', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-              ＋ 祭りを追加
+            <button onClick={() => { setShowFestivalSearch((v) => !v); setFestivalMessage(null); }} style={{ fontSize: '12px', color: '#4a6840', background: 'none', border: '1.5px dashed #9ab88e', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-body)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <Plus size={13} /> 祭りを追加
             </button>
           )}
         </div>
@@ -283,9 +284,9 @@ export function GroupDetailPage() {
               {/* 祭りチップ */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff8f0', border: '1px solid #e8c0a0', borderRadius: '20px', padding: '5px 12px', fontSize: '13px', fontFamily: 'var(--font-body)', color: '#1c2e17' }}>
-                  🏮 {ft.festival_name}
+                  {ft.festival_name}
                   {isCreator && (
-                    <button onClick={() => handleRemoveFestival(ft.festival_id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c85a2c', fontSize: '14px', padding: '0 2px', lineHeight: 1 }}>×</button>
+                    <button onClick={() => handleRemoveFestival(ft.festival_id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c85a2c', padding: '0 2px', display: 'flex', alignItems: 'center' }}><X size={13} /></button>
                   )}
                 </div>
                 {/* グループ参加ボタン（作成者のみ） */}
@@ -299,8 +300,8 @@ export function GroupDetailPage() {
                 )}
                 {/* 申込完了バッジ */}
                 {participateResult?.festivalId === ft.festival_id && (
-                  <span style={{ fontSize: '11px', color: '#4e8b3f', fontFamily: 'var(--font-body)', fontWeight: 600 }}>
-                    ✓ {participateResult.count}名の申込が完了しました
+                  <span style={{ fontSize: '11px', color: '#4e8b3f', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Check size={12} />{participateResult.count}名の申込が完了しました
                   </span>
                 )}
               </div>
@@ -308,8 +309,8 @@ export function GroupDetailPage() {
               {/* 参加申込フォーム */}
               {isCreator && participatingFestivalId === ft.festival_id && (
                 <form onSubmit={handleGroupParticipate} style={{ marginTop: '10px', background: '#fff8f0', border: '1px solid #e8c0a0', borderRadius: '10px', padding: '14px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '10px' }}>
-                    🏮 {ft.festival_name} にグループ全員で参加申込
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    {ft.festival_name} にグループ全員で参加申込
                     <span style={{ marginLeft: '8px', fontSize: '11px', color: '#7a9470', fontWeight: 400 }}>({group.members.length}名)</span>
                   </div>
                   <div style={{ marginBottom: '10px' }}>
@@ -363,7 +364,7 @@ export function GroupDetailPage() {
                     onMouseEnter={(e) => (e.currentTarget.style.background = '#f4f7f0')}
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
                   >
-                    🏮 {f.name}
+                    {f.name}
                     {f.region && <span style={{ fontSize: '11px', color: '#7a9470', marginLeft: '8px' }}>{f.region}</span>}
                   </button>
                 ))}
@@ -385,9 +386,9 @@ export function GroupDetailPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600, color: '#1c2e17' }}>グループ写真 ({photos.length})</div>
           <label
-            style={{ fontSize: '12px', fontWeight: 600, padding: '5px 14px', borderRadius: '8px', background: photoUploading ? '#9ab88e' : '#4e8b3f', color: 'white', cursor: photoUploading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}
+            style={{ fontSize: '12px', fontWeight: 600, padding: '5px 14px', borderRadius: '8px', background: photoUploading ? '#9ab88e' : '#4e8b3f', color: 'white', cursor: photoUploading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)', display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}
           >
-            {photoUploading ? 'アップロード中...' : '＋ 写真を追加'}
+            {photoUploading ? 'アップロード中...' : <><Plus size={13} /> 写真を追加</>}
             <input ref={photoFileRef} type="file" accept="image/*" style={{ display: 'none' }} disabled={photoUploading} onChange={handlePhotoFileSelect} />
           </label>
         </div>
@@ -395,8 +396,8 @@ export function GroupDetailPage() {
         {/* アップロードオプションパネル */}
         {showPhotoUpload && pendingPhotoFile && (
           <form onSubmit={handlePhotoUpload} style={{ background: '#f4f7f0', borderRadius: '10px', padding: '14px', marginBottom: '14px', border: '1px solid #c8d8be' }}>
-            <div style={{ fontSize: '13px', color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '12px', fontWeight: 500 }}>
-              📎 {pendingPhotoFile.name}
+            <div style={{ fontSize: '13px', color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '12px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Paperclip size={13} />{pendingPhotoFile.name}
             </div>
             <div style={{ marginBottom: '10px' }}>
               <label style={labelStyle}>公開設定</label>

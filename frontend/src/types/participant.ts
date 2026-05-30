@@ -3,6 +3,8 @@ export interface Participant {
     festival_id: number;
     name: string;
     message: string | null;
+    group_id: number | null;
+    group_name: string | null;
     created_at: string;
 }
 

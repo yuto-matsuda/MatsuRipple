@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus, X } from 'lucide-react';
 import useGroups from '../hooks/useGroups';
 import useInvitations from '../hooks/useInvitations';
 
@@ -66,11 +67,9 @@ export function GroupsPage() {
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 700, color: '#1c2e17', letterSpacing: '0.04em', margin: 0 }}>
           グループ
         </h1>
-        <button
-          onClick={() => setShowCreate((v) => !v)}
-          style={{ background: '#4e8b3f', color: 'white', border: 'none', borderRadius: '8px', padding: '8px 18px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' }}
-        >
-          ＋ 新しいグループ
+        <button type="button" onClick={() => setShowCreate((v) => !v)} style={{ fontSize: '12px', color: '#fff', background: '#4e8b3f', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: 'var(--font-body)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <Plus size={13} />
+          新しいグループ
         </button>
       </div>
 
@@ -106,12 +105,12 @@ export function GroupsPage() {
                     placeholder={`例：${i === 0 ? '広島' : '東京'}`}
                   />
                   {locationInputs.length > 1 && (
-                    <button type="button" onClick={() => handleRemoveLocation(i)} style={{ background: 'none', border: '1.5px solid #e8a080', borderRadius: '8px', color: '#c85a2c', fontSize: '16px', padding: '0 10px', cursor: 'pointer' }}>×</button>
+                    <button type="button" onClick={() => handleRemoveLocation(i)} style={{ background: 'none', border: '1.5px solid #e8a080', borderRadius: '8px', color: '#c85a2c', padding: '0 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}><X size={14} /></button>
                   )}
                 </div>
               ))}
-              <button type="button" onClick={handleAddLocation} style={{ fontSize: '12px', color: '#4a6840', background: 'none', border: '1.5px dashed #9ab88e', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-                ＋ 場所を追加
+              <button type="button" onClick={handleAddLocation} style={{ fontSize: '12px', color: '#4a6840', background: 'none', border: '1.5px dashed #9ab88e', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: 'var(--font-body)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <Plus size={13} /> 場所を追加
               </button>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
