@@ -88,7 +88,7 @@ export function FestivalDetailPage() {
   );
 
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto', padding: '32px 20px', background: '#f4f7f0', minHeight: '100vh' }}>
+    <div className="px-4 pt-4 pb-8 md:px-5 md:pt-8" style={{ maxWidth: '720px', margin: '0 auto', background: '#f4f7f0', minHeight: '100vh' }}>
       <button
         onClick={() => navigate('/')}
         style={{ fontSize: '13px', color: '#4a6840', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '4px', padding: 0, fontFamily: 'var(--font-body)' }}
@@ -105,7 +105,7 @@ export function FestivalDetailPage() {
               {festival.region}
             </div>
           )}
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 700, color: 'white', letterSpacing: '0.04em', lineHeight: 1.2, margin: 0 }}>
+          <h1 className="text-[22px] md:text-[28px]" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'white', letterSpacing: '0.04em', lineHeight: 1.2, margin: 0 }}>
             {festival.name}
           </h1>
           {festival.start_datetime && (

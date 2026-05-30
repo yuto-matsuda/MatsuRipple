@@ -21,7 +21,7 @@ export function PhotoGallery({ photos, onDelete }: PhotoGalleryProps) {
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+      <div className="grid grid-cols-3 gap-2 md:grid-cols-4">
         {photos.map((photo, i) => (
           <div key={photo.id} style={{ position: 'relative' }}>
             <div
