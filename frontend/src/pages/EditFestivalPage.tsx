@@ -291,8 +291,8 @@ export function EditFestivalPage() {
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600, color: '#1c2e17', marginBottom: '14px' }}>
             開催場所
           </div>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-            <div style={{ flex: 1 }}>
+          <div className="flex flex-col gap-2 mb-3 md:flex-row">
+            <div className="md:flex-1">
               <label style={labelStyle}>郵便番号（自動補完）</label>
               <input
                 style={inputStyle}
@@ -304,11 +304,12 @@ export function EditFestivalPage() {
                 maxLength={8}
               />
             </div>
-            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <div className="flex md:items-end">
               <button
                 type="button"
                 onClick={handlePostalLookup}
                 disabled={postalLoading}
+                className="w-full md:w-auto"
                 style={{ padding: '9px 14px', background: postalLoading ? '#9ab88e' : '#4e8b3f', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: postalLoading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}
               >
                 {postalLoading ? '検索中...' : '住所を検索'}

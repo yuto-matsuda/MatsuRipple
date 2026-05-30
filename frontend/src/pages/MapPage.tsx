@@ -10,10 +10,12 @@ export function MapPage() {
   const [search, setSearch] = useState('');
   const [activeFestival, setActiveFestival] = useState<Festival | null>(null);
   const [focusKey, setFocusKey] = useState(0);
+  const [mobileTab, setMobileTab] = useState<'map' | 'list'>('map');
 
   const handleSelectFestival = (festival: Festival) => {
     setActiveFestival(festival);
     setFocusKey((k) => k + 1);
+    setMobileTab('map');
   };
 
   const filtered = festivals.filter(
@@ -21,19 +23,28 @@ export function MapPage() {
   );
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 52px)', overflow: 'hidden' }}>
+    <div className="flex flex-col h-[calc(100vh-52px)] overflow-hidden md:flex-row">
+
+      {/* ── モバイルタブバー（md以上で非表示） ── */}
+      <div className="flex md:hidden shrink-0 border-b border-[#d6e4ce] bg-[#f4f7f0]">
+        {(['map', 'list'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setMobileTab(tab)}
+            className={`flex-1 py-2.5 text-[13px] font-semibold border-b-2 transition-colors cursor-pointer bg-transparent
+              ${mobileTab === tab
+                ? 'text-[#1c2e17] border-[#c85a2c] bg-white'
+                : 'text-[#7a9470] border-transparent'
+              }`}
+            style={{ fontFamily: 'var(--font-body)', border: 'none', borderBottom: mobileTab === tab ? '2px solid #c85a2c' : '2px solid transparent' }}
+          >
+            {tab === 'map' ? '🗺 地図' : '📋 リスト'}
+          </button>
+        ))}
+      </div>
 
       {/* ── サイドバー ── */}
-      <div style={{
-        width: '300px',
-        flexShrink: 0,
-        background: '#f4f7f0',
-        borderRight: '1px solid #d6e4ce',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        height: '100%',
-      }}>
+      <div className={`flex-col overflow-hidden bg-[#f4f7f0] border-r border-[#d6e4ce] md:flex md:w-75 md:shrink-0 md:h-full ${mobileTab === 'list' ? 'flex flex-1' : 'hidden'}`}>
 
         {/* 検索欄 */}
         <div style={{ padding: '14px 12px 10px', background: '#f4f7f0' }}>
@@ -63,15 +74,7 @@ export function MapPage() {
 
         {/* 件数バッジ */}
         <div style={{ padding: '0 14px 8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{
-            fontSize: '11px',
-            fontWeight: 700,
-            color: 'white',
-            background: '#4e8b3f',
-            borderRadius: '10px',
-            padding: '2px 8px',
-            fontFamily: 'var(--font-body)',
-          }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'white', background: '#4e8b3f', borderRadius: '10px', padding: '2px 8px', fontFamily: 'var(--font-body)' }}>
             {filtered.length}
           </span>
           <span style={{ fontSize: '11px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>件のお祭り</span>
@@ -103,7 +106,7 @@ export function MapPage() {
       </div>
 
       {/* ── 地図エリア ── */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <div className={`relative overflow-hidden md:flex md:flex-1 ${mobileTab === 'map' ? 'flex flex-1' : 'hidden'}`}>
         <MapView
           festivals={filtered}
           height='100%'
@@ -111,7 +114,6 @@ export function MapPage() {
           focusKey={focusKey}
           onSelectFestival={handleSelectFestival}
         />
-
       </div>
     </div>
   );
