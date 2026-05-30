@@ -44,7 +44,18 @@ export function Navbar() {
         alignItems: 'center',
         gap: '8px',
       }}>
-        <span style={{ width: 8, height: 8, background: '#c85a2c', borderRadius: '50%', display: 'inline-block', flexShrink: 0 }} />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" aria-hidden="true" style={{ flexShrink: 0 }}>
+          <g fill="none" stroke="#E6592E" strokeWidth="2.6">
+            <circle cx="44" cy="44" r="40" strokeOpacity="0.26" />
+            <circle cx="44" cy="44" r="31" strokeOpacity="0.45" />
+            <circle cx="44" cy="44" r="22" strokeOpacity="0.66" />
+          </g>
+          <g fill="#E6592E" transform="translate(44 44) scale(0.6) translate(-44 -44)">
+            <path d="M44,44 C30,38 32,19 50,11 C56,21 53,38 44,44 Z" transform="rotate(0 44 44)" />
+            <path d="M44,44 C30,38 32,19 50,11 C56,21 53,38 44,44 Z" transform="rotate(120 44 44)" />
+            <path d="M44,44 C30,38 32,19 50,11 C56,21 53,38 44,44 Z" transform="rotate(240 44 44)" />
+          </g>
+        </svg>
         MatsuRipple
       </Link>
 
