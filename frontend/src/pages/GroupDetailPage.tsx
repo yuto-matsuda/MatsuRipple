@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, X, Check, Paperclip } from 'lucide-react';
+import { PhotoLightbox } from '../components/PhotoLightbox';
 import useGroupDetail from '../hooks/useGroupDetail';
 import usePhotos from '../hooks/usePhotos';
 import { fetchMe } from '../api/auth';
@@ -77,6 +78,7 @@ export function GroupDetailPage() {
 
   // 写真アップロード
   const photoFileRef = useRef<HTMLInputElement>(null);
+  const [photoLightboxIndex, setPhotoLightboxIndex] = useState<number | null>(null);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [pendingPhotoFile, setPendingPhotoFile] = useState<File | null>(null);
   const [photoIsPublic, setPhotoIsPublic] = useState(true);
@@ -437,24 +439,25 @@ export function GroupDetailPage() {
         {photos.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px 0', fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>写真はまだありません</div>
         ) : (
+          <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-            {photos.map((photo) => (
+            {photos.map((photo, i) => (
               <div key={photo.id} style={{ position: 'relative', aspectRatio: '1' }}>
-                <a href={photo.filename} target="_blank" rel="noopener noreferrer">
+                <div
+                  onClick={() => setPhotoLightboxIndex(i)}
+                  style={{ width: '100%', height: '100%', cursor: 'zoom-in' }}
+                >
                   <img src={photo.filename} alt={photo.original_name ?? '写真'} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '1px solid #c8d8be', display: 'block' }} />
-                </a>
-                {/* 公開/非公開バッジ（自分の写真のみトグル可） */}
-                {photo.user_id === currentUser?.id && (
+                </div>
+                {photo.user_id === currentUser?.id ? (
                   <button
-                    onClick={() => updateVisibility(photo.id, !photo.is_public)}
+                    onClick={(e) => { e.stopPropagation(); updateVisibility(photo.id, !photo.is_public); }}
                     title={photo.is_public ? '非公開にする' : '公開にする'}
                     style={{ position: 'absolute', top: '5px', right: '5px', background: photo.is_public ? 'rgba(78,139,63,0.85)' : 'rgba(100,100,100,0.75)', color: 'white', border: 'none', borderRadius: '6px', padding: '2px 7px', fontSize: '10px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)', backdropFilter: 'blur(2px)' }}
                   >
                     {photo.is_public ? '公開' : '非公開'}
                   </button>
-                )}
-                {/* 自分のでない写真の公開状態表示 */}
-                {photo.user_id !== currentUser?.id && (
+                ) : (
                   <div style={{ position: 'absolute', top: '5px', right: '5px', background: photo.is_public ? 'rgba(78,139,63,0.75)' : 'rgba(100,100,100,0.65)', color: 'white', borderRadius: '6px', padding: '2px 7px', fontSize: '10px', fontWeight: 600, fontFamily: 'var(--font-body)' }}>
                     {photo.is_public ? '公開' : '非公開'}
                   </div>
@@ -462,6 +465,14 @@ export function GroupDetailPage() {
               </div>
             ))}
           </div>
+          {photoLightboxIndex !== null && (
+            <PhotoLightbox
+              photos={photos}
+              initialIndex={photoLightboxIndex}
+              onClose={() => setPhotoLightboxIndex(null)}
+            />
+          )}
+          </>
         )}
       </div>
 

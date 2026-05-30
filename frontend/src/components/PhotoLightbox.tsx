@@ -1,15 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { FestivalGalleryPhoto } from '../types/festivalGallery';
+
+interface LightboxPhoto {
+  filename: string;
+  original_name: string | null;
+}
 
 interface PhotoLightboxProps {
-  photos: FestivalGalleryPhoto[];
+  photos: LightboxPhoto[];
   initialIndex: number;
   onClose: () => void;
 }
 
 export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxProps) {
   const [index, setIndex] = useState(initialIndex);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const prev = useCallback(() => setIndex((i) => (i - 1 + photos.length) % photos.length), [photos.length]);
   const next = useCallback(() => setIndex((i) => (i + 1) % photos.length), [photos.length]);
@@ -50,6 +60,8 @@ export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxPr
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         padding: '20px',
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.22s ease',
       }}
     >
       {/* 閉じるボタン */}
@@ -69,7 +81,12 @@ export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxPr
       {/* ナビ + 画像 */}
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ display: 'flex', alignItems: 'center', gap: '16px', maxWidth: '100%' }}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '16px', maxWidth: '100%',
+          transform: visible ? 'scale(1)' : 'scale(0.94)',
+          opacity: visible ? 1 : 0,
+          transition: 'transform 0.28s cubic-bezier(0.34,1.2,0.64,1), opacity 0.22s ease',
+        }}
       >
         {photos.length > 1 && (
           <button onClick={prev} style={navBtn}><ChevronLeft size={24} /></button>
@@ -82,6 +99,7 @@ export function PhotoLightbox({ photos, initialIndex, onClose }: PhotoLightboxPr
             maxWidth: '90vw', maxHeight: '80vh',
             objectFit: 'contain', borderRadius: '8px',
             display: 'block',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
           }}
         />
 
