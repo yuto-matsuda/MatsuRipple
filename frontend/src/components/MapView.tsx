@@ -69,31 +69,62 @@ export function MapView({ festivals, height = '500px', activeFestival, focusKey,
           }}
         >
           <Popup>
-            <div style={{ fontFamily: 'var(--font-body)', minWidth: '180px' }}>
+            <div style={{ fontFamily: 'var(--font-body)', minWidth: '220px', maxWidth: '280px' }}>
               {festival.thumbnail_url && (
                 <img
                   src={festival.thumbnail_url}
                   alt={festival.name}
-                  style={{ width: '100%', height: '90px', objectFit: 'cover', display: 'block', borderRadius: '4px', marginBottom: '8px' }}
+                  style={{ width: '100%', height: '100px', objectFit: 'cover', display: 'block', borderRadius: '6px', marginBottom: '10px' }}
                 />
               )}
               {festival.region && (
-                <div style={{ fontSize: '11px', color: '#c85a2c', fontWeight: 600, marginBottom: '2px' }}>{festival.region}</div>
+                <div style={{
+                  display: 'inline-block',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  color: '#c85a2c',
+                  background: '#fff0e8',
+                  borderRadius: '4px',
+                  padding: '1px 7px',
+                  marginBottom: '6px',
+                  letterSpacing: '0.05em',
+                }}>
+                  {festival.region}
+                </div>
               )}
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600, color: '#1c2e17', marginBottom: '4px' }}>
+              <div style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '15px',
+                fontWeight: 700,
+                color: '#1c2e17',
+                marginBottom: '6px',
+                lineHeight: 1.3,
+              }}>
                 {festival.name}
               </div>
               {festival.start_datetime && (
-                <div style={{ fontSize: '12px', color: '#7a9470', marginBottom: '2px' }}>{festival.start_datetime.replace('T', ' ').slice(0, 16)}</div>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#c85a2c', marginBottom: '4px' }}>
+                  📅 {festival.start_datetime.replace('T', ' ').slice(0, 16)}
+                </div>
               )}
               {festival.venue && (
-                <div style={{ fontSize: '12px', color: '#7a9470', marginBottom: '8px' }}>{festival.venue}</div>
+                <div style={{ fontSize: '12px', color: '#7a9470', marginBottom: '10px' }}>
+                  📍 {festival.venue}
+                </div>
               )}
+              {!festival.venue && festival.start_datetime && <div style={{ marginBottom: '10px' }} />}
               <button
                 onClick={() => navigate(`/festivals/${festival.id}`)}
                 style={{
-                  background: '#c85a2c', color: 'white', border: 'none', borderRadius: '8px',
-                  padding: '7px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+                  width: '100%',
+                  background: '#c85a2c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
                   fontFamily: 'var(--font-body)',
                 }}
               >
