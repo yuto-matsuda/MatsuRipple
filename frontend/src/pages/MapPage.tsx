@@ -5,9 +5,15 @@ import { MapView } from '../components/MapView';
 import { FestivalCard } from '../components/FestivalCard';
 import type { Festival } from '../types/festival';
 
+const PAGE_LOAD_TIME = Date.now();
+
+const isPast = (f: Festival) =>
+  !!f.start_datetime && new Date(f.start_datetime).getTime() < PAGE_LOAD_TIME;
+
 export function MapPage() {
   const { festivals, loading } = useFestivals();
   const [search, setSearch] = useState('');
+  const [showPast, setShowPast] = useState(false);
   const [activeFestival, setActiveFestival] = useState<Festival | null>(null);
   const [focusKey, setFocusKey] = useState(0);
   const [mobileTab, setMobileTab] = useState<'map' | 'list'>('map');
@@ -18,9 +24,13 @@ export function MapPage() {
     setMobileTab('map');
   };
 
-  const filtered = festivals.filter(
-    (f) => f.name.includes(search) || (f.region ?? '').includes(search),
-  );
+  const filtered = festivals.filter((f) => {
+    if (!(f.name.includes(search) || (f.region ?? '').includes(search))) return false;
+    if (!showPast && isPast(f)) return false;
+    return true;
+  });
+
+  const pastCount = festivals.filter(isPast).length;
 
   return (
     <div className="flex flex-col h-[calc(100vh-52px)] overflow-hidden md:flex-row">
@@ -72,12 +82,27 @@ export function MapPage() {
           </div>
         </div>
 
-        {/* 件数バッジ */}
-        <div style={{ padding: '0 14px 8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {/* 件数バッジ + 過去表示トグル */}
+        <div style={{ padding: '0 14px 8px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '11px', fontWeight: 700, color: 'white', background: '#4e8b3f', borderRadius: '10px', padding: '2px 8px', fontFamily: 'var(--font-body)' }}>
             {filtered.length}
           </span>
           <span style={{ fontSize: '11px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>件のお祭り</span>
+          {pastCount > 0 && (
+            <button
+              onClick={() => setShowPast((v) => !v)}
+              style={{
+                marginLeft: 'auto', fontSize: '10px', fontWeight: 600,
+                color: showPast ? '#4e8b3f' : '#7a9470',
+                background: showPast ? '#edf3e7' : 'transparent',
+                border: `1px solid ${showPast ? '#9ab88e' : '#c8d8be'}`,
+                borderRadius: '8px', padding: '2px 8px', cursor: 'pointer',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {showPast ? `過去を非表示` : `過去も表示 (${pastCount})`}
+            </button>
+          )}
         </div>
 
         {/* カードリスト */}

@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, Calendar, MapPin, Paperclip } from 'lucide-react';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import { fetchFestival } from '../api/festivals';
 import type { Festival } from '../types/festival';
 import { fetchFestivalGallery } from '../api/festivalGallery';
@@ -10,6 +11,7 @@ import { PhotoGallery } from '../components/PhotoGallery';
 import { PhotoSwiper } from '../components/PhotoSwiper';
 import useParticipants from '../hooks/useParticipants';
 import usePhotos from '../hooks/usePhotos';
+import useReviews from '../hooks/useReviews';
 
 export function FestivalDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +22,12 @@ export function FestivalDetailPage() {
   const [galleryPhotos, setGalleryPhotos] = useState<FestivalGalleryPhoto[]>([]);
   const { register, submitting, error, success } = useParticipants();
   const { photos, uploading, upload } = usePhotos(festivalId);
+  const { reviews, submitting: reviewSubmitting, submit: submitReview } = useReviews(festivalId);
+
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewBody, setReviewBody] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewResult, setReviewResult] = useState<{ ok: boolean; message: string } | null>(null);
   const isAuthenticated = !!localStorage.getItem('token');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -140,6 +148,21 @@ export function FestivalDetailPage() {
         </div>
       )}
 
+      {/* 開催場所の地図 */}
+      {festival.location_lat && festival.location_lng && (
+        <div style={{ ...sectionCard, padding: 0, overflow: 'hidden' }}>
+          <MapContainer
+            center={[festival.location_lat, festival.location_lng]}
+            zoom={14}
+            style={{ height: '220px', width: '100%' }}
+            scrollWheelZoom={false}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker position={[festival.location_lat, festival.location_lng]} />
+          </MapContainer>
+        </div>
+      )}
+
       {/* Participation form */}
       <div style={sectionCard}>
         <div style={sectionTitle}>参加登録</div>
@@ -189,6 +212,89 @@ export function FestivalDetailPage() {
         )}
 
         <PhotoGallery photos={photos} />
+      </div>
+
+      {/* 口コミ */}
+      <div style={sectionCard}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={sectionTitle}>口コミ ({reviews.length})</div>
+          {isAuthenticated && !showReviewForm && (
+            <button
+              onClick={() => { setShowReviewForm(true); setReviewResult(null); }}
+              style={{ fontSize: '12px', fontWeight: 600, padding: '6px 14px', borderRadius: '8px', background: '#4e8b3f', color: 'white', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
+            >
+              口コミを書く
+            </button>
+          )}
+        </div>
+
+        {/* 投稿フォーム */}
+        {showReviewForm && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const result = await submitReview(reviewBody, reviewRating);
+              setReviewResult({ ok: result.ok, message: result.ok ? '口コミを投稿しました！' : (result.message ?? '投稿に失敗しました') });
+              if (result.ok) { setShowReviewForm(false); setReviewBody(''); setReviewRating(5); }
+            }}
+            style={{ background: '#f4f7f0', borderRadius: '10px', padding: '16px', marginBottom: '16px', border: '1px solid #c8d8be' }}
+          >
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '8px' }}>評価</div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n} type="button" onClick={() => setReviewRating(n)}
+                    style={{ fontSize: '20px', background: 'none', border: 'none', cursor: 'pointer', opacity: n <= reviewRating ? 1 : 0.3, padding: '0 2px' }}
+                  >★</button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 500, color: '#4a6840', marginBottom: '5px' }}>コメント</div>
+              <textarea
+                required
+                value={reviewBody}
+                onChange={(e) => setReviewBody(e.target.value)}
+                placeholder="祭りの感想を書いてください..."
+                style={{ width: '100%', border: '1.5px solid #c8d8be', borderRadius: '8px', padding: '9px 12px', fontSize: '14px', fontFamily: 'var(--font-body)', color: '#1c2e17', background: 'white', outline: 'none', boxSizing: 'border-box', resize: 'vertical', minHeight: '80px' }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" onClick={() => setShowReviewForm(false)} style={{ flex: 1, background: 'white', color: '#4a6840', border: '1.5px solid #c8d8be', borderRadius: '8px', padding: '9px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' }}>キャンセル</button>
+              <button type="submit" disabled={reviewSubmitting} style={{ flex: 1, background: reviewSubmitting ? '#9ab88e' : '#4e8b3f', color: 'white', border: 'none', borderRadius: '8px', padding: '9px', fontSize: '13px', fontWeight: 600, cursor: reviewSubmitting ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)' }}>
+                {reviewSubmitting ? '投稿中...' : '投稿する'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {reviewResult && (
+          <div style={{ marginBottom: '12px', fontSize: '13px', fontWeight: 600, color: reviewResult.ok ? '#4e8b3f' : '#c85a2c', fontFamily: 'var(--font-body)' }}>
+            {reviewResult.message}
+          </div>
+        )}
+
+        {reviews.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '24px 0', fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>
+            まだ口コミがありません。参加者の方はぜひ感想を投稿してください。
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {reviews.map((r) => (
+              <div key={r.id} style={{ background: '#f4f7f0', borderRadius: '10px', padding: '14px 16px', border: '1px solid #e4eddf' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#1c2e17', fontFamily: 'var(--font-body)' }}>{r.username}</span>
+                    <span style={{ marginLeft: '8px', fontSize: '14px', color: '#c85a2c' }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>{new Date(r.created_at).toLocaleDateString('ja-JP')}</span>
+                </div>
+                <p style={{ fontSize: '13px', color: '#1c2e17', lineHeight: 1.7, fontFamily: 'var(--font-body)', margin: 0 }}>{r.body}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
