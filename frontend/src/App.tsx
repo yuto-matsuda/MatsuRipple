@@ -14,7 +14,7 @@ import { ParticipantsPage } from './pages/ParticipantsPage';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <main>
