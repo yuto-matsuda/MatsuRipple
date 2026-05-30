@@ -292,6 +292,29 @@ export function CMSPage() {
           />
         </div>
 
+        {/* 追加情報 */}
+        <div style={sectionStyle}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600, color: '#1c2e17', marginBottom: '16px' }}>追加情報</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div>
+              <label style={labelStyle}>料金</label>
+              <input style={inputStyle} type="text" placeholder="例：無料、大人500円" value={form.fee ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, fee: e.target.value || undefined }))} />
+            </div>
+            <div>
+              <label style={labelStyle}>公式サイト URL</label>
+              <input style={inputStyle} type="url" placeholder="https://..." value={form.official_url ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, official_url: e.target.value || undefined }))} />
+            </div>
+          </div>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={labelStyle}>悪天時対応</label>
+            <input style={inputStyle} type="text" placeholder="例：中止、屋内移動、荒天中止" value={form.bad_weather ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, bad_weather: e.target.value || undefined }))} />
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontFamily: 'var(--font-body)', color: '#1c2e17' }}>
+            <input type="checkbox" checked={form.parking ?? false} onChange={(e) => setForm((prev) => ({ ...prev, parking: e.target.checked }))} />
+            駐車場あり
+          </label>
+        </div>
+
         {/* トピック写真 */}
         <div style={sectionStyle}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600, color: '#1c2e17', marginBottom: '14px' }}>

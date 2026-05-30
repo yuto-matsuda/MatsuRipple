@@ -51,6 +51,10 @@ class FestivalCreate(BaseModel):
     end_datetime: Optional[str] = None
     venue: Optional[str] = None
     thumbnail_url: Optional[str] = None
+    fee: Optional[str] = None
+    official_url: Optional[str] = None
+    bad_weather: Optional[str] = None
+    parking: Optional[bool] = None
 
 
 class FestivalResponse(BaseModel):
@@ -65,6 +69,10 @@ class FestivalResponse(BaseModel):
     venue: Optional[str] = None
     thumbnail_url: Optional[str] = None
     user_id: Optional[int] = None
+    fee: Optional[str] = None
+    official_url: Optional[str] = None
+    bad_weather: Optional[str] = None
+    parking: Optional[bool] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -96,6 +104,32 @@ class ParticipantResponse(BaseModel):
     message: Optional[str] = None
     group_id: Optional[int] = None
     group_name: Optional[str] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ── Review ─────────────────────────────────────────────
+class ReviewCreate(BaseModel):
+    festival_id: int
+    body: str
+    rating: int
+
+    @field_validator('rating')
+    @classmethod
+    def rating_range(cls, v: int) -> int:
+        if not 1 <= v <= 5:
+            raise ValueError('評価は1〜5で入力してください')
+        return v
+
+
+class ReviewResponse(BaseModel):
+    id: int
+    festival_id: int
+    user_id: int
+    username: str
+    body: str
+    rating: int
     created_at: datetime
 
     model_config = {"from_attributes": True}

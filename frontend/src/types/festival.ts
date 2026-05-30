@@ -10,6 +10,10 @@ export interface Festival {
     venue: string | null;
     thumbnail_url: string | null;
     user_id: number | null;
+    fee: string | null;
+    official_url: string | null;
+    bad_weather: string | null;
+    parking: boolean | null;
     created_at: string;
 }
 
@@ -23,4 +27,8 @@ export interface FestivalCreate {
     end_datetime?: string;
     venue?: string;
     thumbnail_url?: string;
+    fee?: string;
+    official_url?: string;
+    bad_weather?: string;
+    parking?: boolean;
 }

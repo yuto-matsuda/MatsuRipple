@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth, festivals, participants, photos, festival_gallery, groups, invitations
+from .routers import auth, festivals, participants, photos, festival_gallery, groups, invitations, reviews
 
 app = FastAPI(title="MatsuRipple API")
 
@@ -19,3 +19,4 @@ app.include_router(photos.router, prefix="/photos", tags=["photos"])
 app.include_router(festival_gallery.router, prefix="/festival-gallery", tags=["festival-gallery"])
 app.include_router(groups.router, prefix="/groups", tags=["groups"])
 app.include_router(invitations.router, prefix="/invitations", tags=["invitations"])
+app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
