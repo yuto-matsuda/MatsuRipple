@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, List, X } from 'lucide-react';
 import useFestivals from '../hooks/useFestivals';
 import { MapView } from '../components/MapView';
 import { FestivalCard } from '../components/FestivalCard';
@@ -16,12 +16,12 @@ export function MapPage() {
   const [showPast, setShowPast] = useState(false);
   const [activeFestival, setActiveFestival] = useState<Festival | null>(null);
   const [focusKey, setFocusKey] = useState(0);
-  const [mobileTab, setMobileTab] = useState<'map' | 'list'>('map');
+  const [listOpen, setListOpen] = useState(false);
 
   const handleSelectFestival = (festival: Festival) => {
     setActiveFestival(festival);
     setFocusKey((k) => k + 1);
-    setMobileTab('map');
+    setListOpen(false);
   };
 
   const filtered = festivals.filter((f) => {
@@ -32,113 +32,126 @@ export function MapPage() {
 
   const pastCount = festivals.filter(isPast).length;
 
-  return (
-    <div className="flex flex-col h-[calc(100vh-52px)] overflow-hidden md:flex-row">
+  useEffect(() => {
+    document.body.style.overflow = listOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [listOpen]);
 
-      {/* ── モバイルタブバー（md以上で非表示） ── */}
-      <div className="flex md:hidden shrink-0 border-b border-[#d6e4ce] bg-[#f4f7f0]">
-        {(['map', 'list'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setMobileTab(tab)}
-            className={`flex-1 py-2.5 text-[13px] font-semibold border-b-2 transition-colors cursor-pointer bg-transparent
-              ${mobileTab === tab
-                ? 'text-[#1c2e17] border-[#c85a2c] bg-white'
-                : 'text-[#7a9470] border-transparent'
-              }`}
-            style={{ fontFamily: 'var(--font-body)', border: 'none', borderBottom: mobileTab === tab ? '2px solid #c85a2c' : '2px solid transparent' }}
-          >
-            {tab === 'map' ? '🗺 地図' : '📋 リスト'}
-          </button>
-        ))}
+  const listInner = (
+    <>
+      {/* 検索欄 */}
+      <div style={{ padding: '14px 12px 10px' }}>
+        <div style={{ position: 'relative' }}>
+          <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9ab88e', pointerEvents: 'none' }} />
+          <input
+            type="text"
+            placeholder="祭りを検索..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              width: '100%', border: '1.5px solid #c8d8be', borderRadius: '10px',
+              padding: '9px 12px 9px 32px', fontSize: '13px', fontFamily: 'var(--font-body)',
+              color: '#1c2e17', background: 'white', outline: 'none',
+              boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(28,46,23,0.06)',
+            }}
+          />
+        </div>
       </div>
 
-      {/* ── サイドバー ── */}
-      <div className={`flex-col overflow-hidden bg-[#f4f7f0] border-r border-[#d6e4ce] md:flex md:w-75 md:shrink-0 md:h-full ${mobileTab === 'list' ? 'flex flex-1' : 'hidden'}`}>
+      {/* 件数バッジ + 過去表示トグル */}
+      <div style={{ padding: '0 14px 8px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: 'white', background: '#4e8b3f', borderRadius: '10px', padding: '2px 8px', fontFamily: 'var(--font-body)' }}>
+          {filtered.length}
+        </span>
+        <span style={{ fontSize: '11px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>件のお祭り</span>
+        {pastCount > 0 && (
+          <button
+            onClick={() => setShowPast((v) => !v)}
+            style={{
+              marginLeft: 'auto', fontSize: '10px', fontWeight: 600,
+              color: showPast ? '#4e8b3f' : '#7a9470',
+              background: showPast ? '#edf3e7' : 'transparent',
+              border: `1px solid ${showPast ? '#9ab88e' : '#c8d8be'}`,
+              borderRadius: '8px', padding: '2px 8px', cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            {showPast ? '過去を非表示' : `過去も表示 (${pastCount})`}
+          </button>
+        )}
+      </div>
 
-        {/* 検索欄 */}
-        <div style={{ padding: '14px 12px 10px', background: '#f4f7f0' }}>
-          <div style={{ position: 'relative' }}>
-            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9ab88e', pointerEvents: 'none' }} />
-            <input
-              type='text'
-              placeholder='祭りを検索...'
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{
-                width: '100%',
-                border: '1.5px solid #c8d8be',
-                borderRadius: '10px',
-                padding: '9px 12px 9px 32px',
-                fontSize: '13px',
-                fontFamily: 'var(--font-body)',
-                color: '#1c2e17',
-                background: 'white',
-                outline: 'none',
-                boxSizing: 'border-box',
-                boxShadow: '0 1px 4px rgba(28,46,23,0.06)',
-              }}
-            />
+      {/* カードリスト */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px 12px' }}>
+        {loading ? (
+          <div style={{ fontSize: '12px', color: '#7a9470', padding: '16px 4px', fontFamily: 'var(--font-body)' }}>読み込み中...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ fontSize: '13px', color: '#7a9470', textAlign: 'center', padding: '40px 0', fontFamily: 'var(--font-body)' }}>祭り情報がまだありません</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+            {filtered.map((festival) => (
+              <FestivalCard
+                key={festival.id}
+                festival={festival}
+                isActive={activeFestival?.id === festival.id}
+                onClick={handleSelectFestival}
+              />
+            ))}
           </div>
-        </div>
+        )}
+      </div>
+    </>
+  );
 
-        {/* 件数バッジ + 過去表示トグル */}
-        <div style={{ padding: '0 14px 8px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: 'white', background: '#4e8b3f', borderRadius: '10px', padding: '2px 8px', fontFamily: 'var(--font-body)' }}>
-            {filtered.length}
-          </span>
-          <span style={{ fontSize: '11px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>件のお祭り</span>
-          {pastCount > 0 && (
-            <button
-              onClick={() => setShowPast((v) => !v)}
-              style={{
-                marginLeft: 'auto', fontSize: '10px', fontWeight: 600,
-                color: showPast ? '#4e8b3f' : '#7a9470',
-                background: showPast ? '#edf3e7' : 'transparent',
-                border: `1px solid ${showPast ? '#9ab88e' : '#c8d8be'}`,
-                borderRadius: '8px', padding: '2px 8px', cursor: 'pointer',
-                fontFamily: 'var(--font-body)',
-              }}
-            >
-              {showPast ? `過去を非表示` : `過去も表示 (${pastCount})`}
-            </button>
-          )}
-        </div>
+  return (
+    <div className="flex h-[calc(100vh-52px)] overflow-hidden">
 
-        {/* カードリスト */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 10px 12px' }}>
-          {loading ? (
-            <div style={{ fontSize: '12px', color: '#7a9470', padding: '16px 4px', fontFamily: 'var(--font-body)' }}>
-              読み込み中...
-            </div>
-          ) : filtered.length === 0 ? (
-            <div style={{ fontSize: '13px', color: '#7a9470', textAlign: 'center', padding: '40px 0', fontFamily: 'var(--font-body)' }}>
-              祭り情報がまだありません
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              {filtered.map((festival) => (
-                <FestivalCard
-                  key={festival.id}
-                  festival={festival}
-                  isActive={activeFestival?.id === festival.id}
-                  onClick={handleSelectFestival}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+      {/* ── デスクトップサイドバー（md以上のみ） ── */}
+      <div className="hidden md:flex flex-col w-75 shrink-0 bg-[#f4f7f0] border-r border-[#d6e4ce] overflow-hidden h-full">
+        {listInner}
       </div>
 
       {/* ── 地図エリア ── */}
-      <div className={`relative overflow-hidden md:flex md:flex-1 ${mobileTab === 'map' ? 'flex flex-1' : 'hidden'}`}>
+      <div className="flex flex-1 relative overflow-hidden isolate">
         <MapView
           festivals={filtered}
-          height='100%'
+          height="100%"
           activeFestival={activeFestival}
           focusKey={focusKey}
           onSelectFestival={handleSelectFestival}
         />
+      </div>
+
+      {/* FAB（モバイルのみ・地図divの外に配置してLeaflet transformの影響を回避） */}
+      <button
+        className="md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#c85a2c] text-white flex items-center justify-center border-none cursor-pointer active:scale-95 transition-transform"
+        style={{ zIndex: 150, boxShadow: '0 4px 16px rgba(200,90,44,0.4)' }}
+        onClick={() => setListOpen(true)}
+      >
+        <List size={24} />
+      </button>
+
+      {/* ── 右スライドパネル（モバイルのみ） ── */}
+
+      {/* バックドロップ */}
+      <div
+        className={`md:hidden fixed inset-0 transition-opacity duration-280 ease-in-out ${listOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        style={{ background: 'rgba(0,0,0,0.35)', zIndex: 199 }}
+        onClick={() => setListOpen(false)}
+      />
+
+      {/* パネル本体 */}
+      <div
+        className={`md:hidden fixed top-13 right-0 bottom-0 flex flex-col overflow-hidden bg-[#f4f7f0] transition-transform duration-280 ease-in-out ${listOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ width: 'min(85vw, 320px)', zIndex: 200, boxShadow: '-4px 0 24px rgba(0,0,0,0.15)' }}
+      >
+        {/* 閉じるボタン */}
+        <div className="flex justify-end px-3 pt-3 pb-1 shrink-0">
+          <button onClick={() => setListOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
+            <X size={20} color="#4a6840" />
+          </button>
+        </div>
+        {listInner}
       </div>
     </div>
   );
