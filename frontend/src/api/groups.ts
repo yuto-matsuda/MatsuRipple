@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Group, GroupDetail, GroupCreate, GroupUpdate, GroupFestival, Invitation } from '../types/group';
+import type { Group, GroupDetail, GroupCreate, GroupUpdate, Invitation } from '../types/group';
 import type { Photo } from '../types/photo';
 
 export const fetchMyGroups = async (): Promise<Group[]> => {
@@ -34,15 +34,6 @@ export const sendInvitation = async (groupId: number, username: string): Promise
 export const fetchGroupPhotos = async (groupId: number): Promise<Photo[]> => {
     const response = await apiClient.get<Photo[]>(`/groups/${groupId}/photos`);
     return response.data;
-};
-
-export const addGroupFestival = async (groupId: number, festivalId: number): Promise<GroupFestival> => {
-    const response = await apiClient.post<GroupFestival>(`/groups/${groupId}/festivals`, { festival_id: festivalId });
-    return response.data;
-};
-
-export const removeGroupFestival = async (groupId: number, festivalId: number): Promise<void> => {
-    await apiClient.delete(`/groups/${groupId}/festivals/${festivalId}`);
 };
 
 interface GroupParticipateResult {

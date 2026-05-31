@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Plus, X, Check, Paperclip } from 'lucide-react';
+import { ChevronLeft, Plus, Check, Paperclip } from 'lucide-react';
 import { PhotoLightbox } from '../components/PhotoLightbox';
 import useGroupDetail from '../hooks/useGroupDetail';
 import usePhotos from '../hooks/usePhotos';
@@ -44,7 +44,7 @@ export function GroupDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const groupId = Number(id);
-  const { group, loading, error, update, leave, invite, addFestival, removeFestival, reload } = useGroupDetail(groupId);
+  const { group, loading, error, update, leave, invite, reload } = useGroupDetail(groupId);
   const { photos, uploading: photoUploading, upload: uploadPhoto, updateVisibility } = usePhotos(undefined, groupId);
 
   const [currentUser, setCurrentUser] = useState<UserResponse | null>(null);
@@ -64,17 +64,15 @@ export function GroupDetailPage() {
   const [leaving, setLeaving] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
-  // 祭りタグ
+  // グループ参加申込（祭り検索 → 申込）
   const [allFestivals, setAllFestivals] = useState<Festival[]>([]);
   const [festivalSearch, setFestivalSearch] = useState('');
   const [showFestivalSearch, setShowFestivalSearch] = useState(false);
-  const [festivalMessage, setFestivalMessage] = useState<{ ok: boolean; text: string } | null>(null);
-
-  // グループ参加申込
   const [participatingFestivalId, setParticipatingFestivalId] = useState<number | null>(null);
+  const [participatingFestivalName, setParticipatingFestivalName] = useState('');
   const [groupMessage, setGroupMessage] = useState('');
   const [participating, setParticipating] = useState(false);
-  const [participateResult, setParticipateResult] = useState<{ festivalId: number; count: number } | null>(null);
+  const [participateResult, setParticipateResult] = useState<{ name: string; count: number } | null>(null);
 
   // 写真アップロード
   const photoFileRef = useRef<HTMLInputElement>(null);
@@ -106,11 +104,8 @@ export function GroupDetailPage() {
 
   const isCreator = currentUser !== null && group !== null && group.creator_id === currentUser.id;
 
-  // 祭りタグ：既に追加済みでないものだけ候補に
-  const taggedFestivalIds = new Set(group?.festivals.map((f) => f.festival_id) ?? []);
-  const filteredFestivals = allFestivals.filter(
-    (f) => !taggedFestivalIds.has(f.id) && f.name.includes(festivalSearch),
-  );
+  // 祭り検索候補（参加申込用）
+  const filteredFestivals = allFestivals.filter((f) => f.name.includes(festivalSearch));
 
   // ── ハンドラー ────────────────────────────────────────
 
@@ -146,21 +141,13 @@ export function GroupDetailPage() {
     if (ok) navigate('/groups');
   };
 
-  const handleAddFestival = async (festivalId: number, festivalName: string) => {
-    setFestivalMessage(null);
-    const result = await addFestival(festivalId);
-    if (result.ok) {
-      setFestivalMessage({ ok: true, text: `「${festivalName}」を追加しました` });
-      setFestivalSearch('');
-      setShowFestivalSearch(false);
-    } else {
-      setFestivalMessage({ ok: false, text: result.message ?? '追加に失敗しました' });
-    }
-  };
-
-  const handleRemoveFestival = async (festivalId: number) => {
-    await removeFestival(festivalId);
-    if (participatingFestivalId === festivalId) setParticipatingFestivalId(null);
+  const handleSelectFestivalToParticipate = (festivalId: number, festivalName: string) => {
+    setParticipatingFestivalId(festivalId);
+    setParticipatingFestivalName(festivalName);
+    setGroupMessage('');
+    setParticipateResult(null);
+    setShowFestivalSearch(false);
+    setFestivalSearch('');
   };
 
   const handleGroupParticipate = async (e: React.SyntheticEvent) => {
@@ -169,9 +156,11 @@ export function GroupDetailPage() {
     setParticipating(true);
     try {
       const result = await groupParticipate(groupId, participatingFestivalId, groupMessage || undefined);
-      setParticipateResult({ festivalId: participatingFestivalId, count: result.registered });
+      setParticipateResult({ name: participatingFestivalName, count: result.registered });
       setParticipatingFestivalId(null);
+      setParticipatingFestivalName('');
       setGroupMessage('');
+      reload(); // 参加申込で関連祭り（自動表示）を更新
     } catch {
       // エラーは何もしない（UIで確認可能）
     } finally {
@@ -269,89 +258,44 @@ export function GroupDetailPage() {
       <div style={sectionCard}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '15px', fontWeight: 600, color: '#1c2e17' }}>関連祭り</div>
-          {isCreator && (
-            <button onClick={() => { setShowFestivalSearch((v) => !v); setFestivalMessage(null); }} style={{ fontSize: '12px', color: '#4a6840', background: 'none', border: '1.5px dashed #9ab88e', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-body)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-              <Plus size={13} /> 祭りを追加
+          {isCreator && participatingFestivalId === null && (
+            <button onClick={() => { setShowFestivalSearch((v) => !v); setParticipateResult(null); }} style={{ fontSize: '12px', color: '#c85a2c', background: '#fff8f0', border: '1.5px solid #e8c0a0', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-body)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <Plus size={13} /> グループで参加申込
             </button>
           )}
         </div>
 
-        {group.festivals.length === 0 && !showFestivalSearch && (
-          <div style={{ fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>まだ祭りが追加されていません</div>
+        {/* 参加した祭り（自動表示・読み取り専用） */}
+        {group.festivals.length === 0 ? (
+          <div style={{ fontSize: '13px', color: '#7a9470', fontFamily: 'var(--font-body)' }}>まだ参加した祭りがありません</div>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {group.festivals.map((ft) => (
+              <button
+                key={ft.id}
+                onClick={() => navigate(`/festivals/${ft.festival_id}`)}
+                style={{ background: '#fff8f0', border: '1px solid #e8c0a0', borderRadius: '20px', padding: '5px 14px', fontSize: '13px', fontFamily: 'var(--font-body)', color: '#1c2e17', cursor: 'pointer' }}
+              >
+                {ft.festival_name}
+              </button>
+            ))}
+          </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: group.festivals.length > 0 ? '10px' : '0' }}>
-          {group.festivals.map((ft) => (
-            <div key={ft.id}>
-              {/* 祭りチップ */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff8f0', border: '1px solid #e8c0a0', borderRadius: '20px', padding: '5px 12px', fontSize: '13px', fontFamily: 'var(--font-body)', color: '#1c2e17' }}>
-                  {ft.festival_name}
-                  {isCreator && (
-                    <button onClick={() => handleRemoveFestival(ft.festival_id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c85a2c', padding: '0 2px', display: 'flex', alignItems: 'center' }}><X size={13} /></button>
-                  )}
-                </div>
-                {/* グループ参加ボタン（作成者のみ） */}
-                {isCreator && participatingFestivalId !== ft.festival_id && (
-                  <button
-                    onClick={() => { setParticipatingFestivalId(ft.festival_id); setGroupMessage(''); setParticipateResult(null); }}
-                    style={{ fontSize: '11px', fontWeight: 600, color: '#c85a2c', background: '#fff8f0', border: '1.5px solid #e8c0a0', borderRadius: '8px', padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
-                  >
-                    グループで参加申込
-                  </button>
-                )}
-                {/* 申込完了バッジ */}
-                {participateResult?.festivalId === ft.festival_id && (
-                  <span style={{ fontSize: '11px', color: '#4e8b3f', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    <Check size={12} />{participateResult.count}名の申込が完了しました
-                  </span>
-                )}
-              </div>
+        {/* 申込完了バッジ */}
+        {participateResult && (
+          <div style={{ marginTop: '10px', fontSize: '12px', color: '#4e8b3f', fontFamily: 'var(--font-body)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Check size={12} />「{participateResult.name}」に {participateResult.count}名の申込が完了しました
+          </div>
+        )}
 
-              {/* 参加申込フォーム */}
-              {isCreator && participatingFestivalId === ft.festival_id && (
-                <form onSubmit={handleGroupParticipate} style={{ marginTop: '10px', background: '#fff8f0', border: '1px solid #e8c0a0', borderRadius: '10px', padding: '14px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    {ft.festival_name} にグループ全員で参加申込
-                    <span style={{ marginLeft: '8px', fontSize: '11px', color: '#7a9470', fontWeight: 400 }}>({group.members.length}名)</span>
-                  </div>
-                  <div style={{ marginBottom: '10px' }}>
-                    <label style={labelStyle}>グループメッセージ（任意）</label>
-                    <textarea
-                      style={{ ...inputStyle, resize: 'vertical', minHeight: '60px' }}
-                      value={groupMessage}
-                      onChange={(e) => setGroupMessage(e.target.value)}
-                      placeholder="例：みんなで楽しみましょう！"
-                    />
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setParticipatingFestivalId(null)}
-                      style={{ flex: 1, background: 'white', color: '#4a6840', border: '1.5px solid #c8d8be', borderRadius: '8px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' }}
-                    >
-                      キャンセル
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={participating}
-                      style={{ flex: 1, background: participating ? '#e8a080' : '#c85a2c', color: 'white', border: 'none', borderRadius: '8px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: participating ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)' }}
-                    >
-                      {participating ? '申込中...' : `${group.members.length}名で申込する`}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {showFestivalSearch && isCreator && (
-          <div>
+        {/* 祭り検索（参加申込先の選択） */}
+        {showFestivalSearch && isCreator && participatingFestivalId === null && (
+          <div style={{ marginTop: '12px' }}>
             <input
               style={{ ...inputStyle, marginBottom: '8px' }}
               type="text"
-              placeholder="祭り名で検索..."
+              placeholder="参加申込する祭りを検索..."
               value={festivalSearch}
               onChange={(e) => setFestivalSearch(e.target.value)}
               autoFocus
@@ -361,7 +305,7 @@ export function GroupDetailPage() {
                 {filteredFestivals.map((f) => (
                   <button
                     key={f.id}
-                    onClick={() => handleAddFestival(f.id, f.name)}
+                    onClick={() => handleSelectFestivalToParticipate(f.id, f.name)}
                     style={{ width: '100%', textAlign: 'left', background: 'white', border: 'none', borderBottom: '1px solid #e4eddf', padding: '10px 14px', fontSize: '13px', fontFamily: 'var(--font-body)', color: '#1c2e17', cursor: 'pointer' }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = '#f4f7f0')}
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
@@ -378,8 +322,40 @@ export function GroupDetailPage() {
             )}
           </div>
         )}
-        {festivalMessage && (
-          <div style={{ marginTop: '8px', fontSize: '12px', color: festivalMessage.ok ? '#4e8b3f' : '#c85a2c', fontFamily: 'var(--font-body)' }}>{festivalMessage.text}</div>
+
+        {/* 参加申込フォーム */}
+        {isCreator && participatingFestivalId !== null && (
+          <form onSubmit={handleGroupParticipate} style={{ marginTop: '12px', background: '#fff8f0', border: '1px solid #e8c0a0', borderRadius: '10px', padding: '14px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: '#1c2e17', fontFamily: 'var(--font-body)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              {participatingFestivalName} にグループ全員で参加申込
+              <span style={{ fontSize: '11px', color: '#7a9470', fontWeight: 400 }}>({group.members.length}名)</span>
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={labelStyle}>グループメッセージ（任意）</label>
+              <textarea
+                style={{ ...inputStyle, resize: 'vertical', minHeight: '60px' }}
+                value={groupMessage}
+                onChange={(e) => setGroupMessage(e.target.value)}
+                placeholder="例：みんなで楽しみましょう！"
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => { setParticipatingFestivalId(null); setParticipatingFestivalName(''); }}
+                style={{ flex: 1, background: 'white', color: '#4a6840', border: '1.5px solid #c8d8be', borderRadius: '8px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)' }}
+              >
+                キャンセル
+              </button>
+              <button
+                type="submit"
+                disabled={participating}
+                style={{ flex: 1, background: participating ? '#e8a080' : '#c85a2c', color: 'white', border: 'none', borderRadius: '8px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: participating ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)' }}
+              >
+                {participating ? '申込中...' : `${group.members.length}名で申込する`}
+              </button>
+            </div>
+          </form>
         )}
       </div>
 

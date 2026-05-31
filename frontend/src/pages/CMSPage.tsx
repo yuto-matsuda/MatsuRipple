@@ -263,7 +263,7 @@ export function CMSPage() {
             />
           </div>
           {/* Map preview */}
-          <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #c8d8be', height: '220px' }}>
+          <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #c8d8be', height: '220px', position: 'relative', zIndex: 0, isolation: 'isolate' }}>
             <MapContainer
               center={pinPos ?? [36.2048, 138.2529]}
               zoom={pinPos ? 14 : 5}

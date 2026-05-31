@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchGroupDetail, updateGroup, leaveGroup, sendInvitation, addGroupFestival, removeGroupFestival } from '../api/groups';
+import { fetchGroupDetail, updateGroup, leaveGroup, sendInvitation } from '../api/groups';
 import type { GroupDetail, GroupUpdate } from '../types/group';
 
 const useGroupDetail = (groupId: number) => {
@@ -48,30 +48,7 @@ const useGroupDetail = (groupId: number) => {
         }
     };
 
-    const addFestival = async (festivalId: number): Promise<{ ok: boolean; message: string | null }> => {
-        try {
-            const tag = await addGroupFestival(groupId, festivalId);
-            setGroup((prev) => prev ? { ...prev, festivals: [...prev.festivals, tag] } : null);
-            return { ok: true, message: null };
-        } catch (e: unknown) {
-            const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-            return { ok: false, message: detail ?? '追加に失敗しました' };
-        }
-    };
-
-    const removeFestival = async (festivalId: number): Promise<boolean> => {
-        try {
-            await removeGroupFestival(groupId, festivalId);
-            setGroup((prev) =>
-                prev ? { ...prev, festivals: prev.festivals.filter((f) => f.festival_id !== festivalId) } : null
-            );
-            return true;
-        } catch {
-            return false;
-        }
-    };
-
-    return { group, loading, error, update, leave, invite, addFestival, removeFestival, reload: load };
+    return { group, loading, error, update, leave, invite, reload: load };
 };
 
 export default useGroupDetail;
