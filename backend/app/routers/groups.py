@@ -8,6 +8,36 @@ def _check_member(sb, group_id: int, user_id: int) -> None:
     if not sb.table("group_members").select("id").eq("group_id", group_id).eq("user_id", user_id).execute().data:
         raise HTTPException(status_code=403, detail="Not a member of this group")
 
+
+def _group_festivals(sb, group_id: int) -> list[dict]:
+    """グループで参加申込した祭りを participants から逆引きして自動算出する"""
+    part_result = (
+        sb.table("participants")
+        .select("festival_id, created_at")
+        .eq("group_id", group_id)
+        .order("created_at")
+        .execute()
+    )
+    seen: dict[int, str] = {}  # festival_id -> 最初の created_at
+    for p in part_result.data:
+        fid = p["festival_id"]
+        if fid not in seen:
+            seen[fid] = p["created_at"]
+
+    festival_list = []
+    for fid, created_at in seen.items():
+        f_result = sb.table("festivals").select("name").eq("id", fid).execute()
+        f_name = f_result.data[0]["name"] if f_result.data else "不明"
+        festival_list.append({
+            "id": fid,
+            "group_id": group_id,
+            "festival_id": fid,
+            "festival_name": f_name,
+            "created_at": created_at,
+        })
+    return festival_list
+
+
 router = APIRouter()
 
 
@@ -73,12 +103,7 @@ def get_group(
         username = user_result.data[0]["username"] if user_result.data else "Unknown"
         member_list.append({**m, "username": username})
 
-    festival_tag_result = sb.table("group_festivals").select("*").eq("group_id", group_id).execute()
-    festival_list = []
-    for ft in festival_tag_result.data:
-        f_result = sb.table("festivals").select("name").eq("id", ft["festival_id"]).execute()
-        f_name = f_result.data[0]["name"] if f_result.data else "不明"
-        festival_list.append({**ft, "festival_name": f_name})
+    festival_list = _group_festivals(sb, group_id)
 
     return schemas.GroupDetailResponse(
         id=group["id"],
@@ -174,54 +199,10 @@ def list_group_festivals(
     group_id: int,
     current_user: schemas.UserResponse = Depends(get_current_user),
 ):
+    """グループで参加申込した祭りを自動表示（participants 逆引き）"""
     sb = get_supabase()
     _check_member(sb, group_id, current_user.id)
-    result = sb.table("group_festivals").select("*").eq("group_id", group_id).execute()
-    festival_list = []
-    for ft in result.data:
-        f_result = sb.table("festivals").select("name").eq("id", ft["festival_id"]).execute()
-        f_name = f_result.data[0]["name"] if f_result.data else "不明"
-        festival_list.append({**ft, "festival_name": f_name})
-    return [schemas.GroupFestivalResponse.model_validate(f) for f in festival_list]
-
-
-@router.post("/{group_id}/festivals", response_model=schemas.GroupFestivalResponse, status_code=201)
-def add_group_festival(
-    group_id: int,
-    body: dict,
-    current_user: schemas.UserResponse = Depends(get_current_user),
-):
-    festival_id: int = body.get("festival_id")
-    if not festival_id:
-        raise HTTPException(status_code=422, detail="festival_id is required")
-    sb = get_supabase()
-    group_result = sb.table("groups").select("creator_id").eq("id", group_id).execute()
-    if not group_result.data:
-        raise HTTPException(status_code=404, detail="Group not found")
-    if group_result.data[0]["creator_id"] != current_user.id:
-        raise HTTPException(status_code=403, detail="Only the creator can manage festivals")
-    if sb.table("group_festivals").select("id").eq("group_id", group_id).eq("festival_id", festival_id).execute().data:
-        raise HTTPException(status_code=400, detail="Festival already added")
-    f_result = sb.table("festivals").select("name").eq("id", festival_id).execute()
-    if not f_result.data:
-        raise HTTPException(status_code=404, detail="Festival not found")
-    result = sb.table("group_festivals").insert({"group_id": group_id, "festival_id": festival_id}).execute()
-    return schemas.GroupFestivalResponse.model_validate({**result.data[0], "festival_name": f_result.data[0]["name"]})
-
-
-@router.delete("/{group_id}/festivals/{festival_id}", status_code=204)
-def remove_group_festival(
-    group_id: int,
-    festival_id: int,
-    current_user: schemas.UserResponse = Depends(get_current_user),
-):
-    sb = get_supabase()
-    group_result = sb.table("groups").select("creator_id").eq("id", group_id).execute()
-    if not group_result.data:
-        raise HTTPException(status_code=404, detail="Group not found")
-    if group_result.data[0]["creator_id"] != current_user.id:
-        raise HTTPException(status_code=403, detail="Only the creator can manage festivals")
-    sb.table("group_festivals").delete().eq("group_id", group_id).eq("festival_id", festival_id).execute()
+    return [schemas.GroupFestivalResponse.model_validate(f) for f in _group_festivals(sb, group_id)]
 
 
 @router.get("/{group_id}/photos", response_model=List[schemas.PhotoResponse])

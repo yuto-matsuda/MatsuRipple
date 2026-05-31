@@ -76,10 +76,10 @@ export function ParticipantsPage() {
 
       {/* 戻るボタン */}
       <button
-        onClick={() => navigate('/account')}
+        onClick={() => navigate('/me')}
         style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4a6840', fontSize: '13px', fontFamily: 'var(--font-body)', fontWeight: 500, padding: 0, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '4px' }}
       >
-        <ChevronLeft size={16} /> アカウントに戻る
+        <ChevronLeft size={16} /> マイページに戻る
       </button>
 
       {/* タイトル */}

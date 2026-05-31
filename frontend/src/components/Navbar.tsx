@@ -13,8 +13,7 @@ export function Navbar() {
 
   const links = [
     { to: '/', label: '地図' },
-    { to: '/photos', label: '写真' },
-    ...(isAuthenticated ? [{ to: '/cms', label: '祭り投稿' }, { to: '/groups', label: 'グループ' }] : []),
+    ...(isAuthenticated ? [{ to: '/cms', label: '祭り投稿' }, { to: '/groups', label: 'グループ' }, { to: '/me', label: 'マイページ' }] : []),
   ];
 
   const isActive = (to: string) =>
@@ -65,7 +64,7 @@ export function Navbar() {
         background: '#2d5422', color: 'white', padding: '0 24px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: '52px', boxShadow: '0 2px 8px rgba(28,46,23,0.18)',
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'sticky', top: 0, zIndex:100,
       }}>
         {Logo}
 
@@ -83,10 +82,7 @@ export function Navbar() {
             </Link>
           ))}
           {isAuthenticated ? (
-            <>
-              <Link to="/account" style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.72)', textDecoration: 'none' }}>アカウント</Link>
-              <button onClick={handleLogout} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.72)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>ログアウト</button>
-            </>
+            <button onClick={handleLogout} style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.72)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>ログアウト</button>
           ) : (
             <Link to="/login" style={{ fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 500, padding: '6px 14px', borderRadius: '8px', background: '#c85a2c', color: 'white', textDecoration: 'none' }}>ログイン</Link>
           )}
@@ -169,20 +165,15 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* 下部：アカウント・ログアウト */}
+        {/* 下部：ログアウト */}
         <div className="shrink-0 px-5 py-4 flex flex-col gap-3" style={{ borderTop: '1px solid #e4eddf' }}>
           {isAuthenticated ? (
-            <>
-              <Link to="/account" style={{ fontSize: '13px', fontFamily: 'var(--font-body)', color: '#4a6840', textDecoration: 'none', fontWeight: 600 }}>
-                アカウント設定
-              </Link>
-              <button
-                onClick={handleLogout}
-                style={{ fontSize: '13px', fontFamily: 'var(--font-body)', color: '#c85a2c', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', fontWeight: 600 }}
-              >
-                ログアウト
-              </button>
-            </>
+            <button
+              onClick={handleLogout}
+              style={{ fontSize: '13px', fontFamily: 'var(--font-body)', color: '#c85a2c', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', fontWeight: 600 }}
+            >
+              ログアウト
+            </button>
           ) : (
             <Link
               to="/login"

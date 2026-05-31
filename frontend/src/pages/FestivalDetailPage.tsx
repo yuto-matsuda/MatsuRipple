@@ -150,7 +150,7 @@ export function FestivalDetailPage() {
 
       {/* 開催場所の地図 */}
       {festival.location_lat && festival.location_lng && (
-        <div style={{ ...sectionCard, padding: 0, overflow: 'hidden' }}>
+        <div style={{ ...sectionCard, padding: 0, overflow: 'hidden', position: 'relative', zIndex: 0, isolation: 'isolate' }}>
           <MapContainer
             center={[festival.location_lat, festival.location_lng]}
             zoom={14}

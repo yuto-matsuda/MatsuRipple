@@ -17,6 +17,33 @@ def register_participant(participant: schemas.ParticipantCreate):
     return schemas.ParticipantResponse.model_validate(result.data[0])
 
 
+@router.get("/me", response_model=List[schemas.FestivalResponse])
+def list_my_participations(
+    current_user: schemas.UserResponse = Depends(get_current_user),
+):
+    """ログインユーザーが参加した祭りの一覧（email 逆引き）"""
+    sb = get_supabase()
+
+    user_result = sb.table("users").select("email").eq("id", current_user.id).execute()
+    if not user_result.data:
+        raise HTTPException(status_code=404, detail="User not found")
+    email = user_result.data[0]["email"]
+
+    part_result = sb.table("participants").select("festival_id").eq("email", email).execute()
+    festival_ids = list({p["festival_id"] for p in part_result.data})
+    if not festival_ids:
+        return []
+
+    fes_result = (
+        sb.table("festivals")
+        .select("*")
+        .in_("id", festival_ids)
+        .order("start_datetime")
+        .execute()
+    )
+    return [schemas.FestivalResponse.model_validate(f) for f in fes_result.data]
+
+
 @router.get("/festival/{festival_id}", response_model=List[schemas.ParticipantResponse])
 def list_participants(
     festival_id: int,
